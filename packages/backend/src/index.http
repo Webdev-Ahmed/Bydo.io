@@ -1,0 +1,49 @@
+POST http://localhost:5000/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Homer",
+  "email": "homer@gmail.com",
+  "password": "Password123"
+}
+
+###
+
+GET http://localhost:5000/health
+
+###
+
+GET http://localhost:5000/api/todo/
+
+###
+
+POST http://localhost:5000/api/todo/
+Content-Type: application/json
+
+{
+  "text": "Feed the cat tonight"
+}
+
+###
+
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "danielrichards@gmail.com",
+  "password": "DanielForTheWin"
+}
+
+###
+
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "homer@gmail.com",
+  "password": "Password123"
+}
+
+###
+
+POST http://localhost:5000/api/auth/logout
