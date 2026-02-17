@@ -1,1 +1,34 @@
 @import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-background: #edf2f4;
+  --color-text: #1a1a1a;
+  --color-primary: #f80429;
+  --color-secondary: #ef233c;
+
+  --default-font-family: "Inter", sans-serif;
+  --font-inter: "Inter", sans-serif;
+}
+
+@layer base {
+  @font-face {
+    font-family: "Inter";
+    src: url("./fonts/Inter-VariableFont_opsz\,wght.ttf") format("tff");
+    font-style: normal;
+    font-display: swap;
+  }
+}
+
+@layer theme {
+  :root,
+  :host {
+    @variant dark {
+      --color-background: #1a1a1a;
+      --color-text: #edf2f4;
+      --color-primary: #ef233c;
+      --color-secondary: #d90429;
+    }
+  }
+}

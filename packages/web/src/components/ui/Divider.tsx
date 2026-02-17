@@ -5,7 +5,11 @@ interface DividerProps {
 
 const Divider = ({ text, orientation = "horizontal" }: DividerProps) => {
   if (orientation === "vertical") {
-    return <div className="w-0.5 h-full bg-neutral-50/5 rounded-full" />;
+    return (
+      <div className="h-full w-0.5 mx-2 bg-text opacity-10 rounded-full inline-block">
+        <p className="opacity-0 pointer-events-none">.</p>
+      </div>
+    );
   }
 
   if (text) {

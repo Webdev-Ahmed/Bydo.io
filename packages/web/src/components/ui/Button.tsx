@@ -1,54 +1,34 @@
-import type { ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { cn } from "@/lib/utils";
+import { motion, type HTMLMotionProps } from "motion/react";
 
-interface ButtonProps {
-  type?: "link" | "button" | "submit";
-  to?: string;
+interface ButtonProps extends HTMLMotionProps<"button"> {
   variant?: "primary" | "secondary";
-  onClick?: () => void;
-  disabled?: boolean;
-  fullWidth?: boolean;
-  children: ReactNode;
-  className?: string;
+  outline?: boolean;
 }
 
 const Button = ({
-  children,
-  variant = "secondary",
-  type = "button",
-  to,
-  onClick,
-  disabled = false,
-  fullWidth = false,
-  className,
+  variant = "primary",
+  outline = false,
+  ...props
 }: ButtonProps) => {
-  const baseStyles = `py-2 px-3 rounded-lg font-semibold tracking-wide cursor-pointer transition-all ${className && className}`;
-
-  const variantStyles =
+  const classes = cn(
+    "font-medium transition-colors px-4 py-2 rounded-full cursor-pointer",
     variant === "primary"
-      ? "bg-pink-500 hover:bg-pink-600"
-      : "bg-neutral-50/10 border border-neutral-50/15 shadow-sm shadow-neutral-50/5 hover:shadow-neutral-50/20 hover:shadow-lg hover:bg-neutral-50 hover:text-neutral-900 hover:border-neutral-50";
-
-  const widthStyles = fullWidth ? "w-full" : "";
-  const disabledStyles = disabled
-    ? "opacity-50 cursor-not-allowed pointer-events-none"
-    : "";
-
-  const classname = `${baseStyles} ${variantStyles} ${widthStyles} ${disabledStyles}`;
-
-  return type === "link" ? (
-    <Link to={to!} className={classname}>
-      {children}
-    </Link>
-  ) : (
-    <button
-      type={type === "submit" ? "submit" : "button"}
-      onClick={onClick}
-      disabled={disabled}
-      className={classname}
+      ? `${outline ? "border border-primary/70 text-primary hover:bg-primary/15" : "bg-primary hover:bg-primary/90"}`
+      : `${outline ? "border border-text/50 text-text/85 hover:bg-text/10" : "bg-text text-background"}`,
+    props.className ? props.className : "",
+  );
+  return (
+    <motion.button
+      variants={{
+        hidden: { opacity: 0, y: 20 },
+        visible: { opacity: 1, y: 0 },
+      }}
+      {...props}
+      className={classes}
     >
-      {children}
-    </button>
+      {props.children}
+    </motion.button>
   );
 };
 

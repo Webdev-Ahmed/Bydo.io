@@ -1,12 +1,8 @@
 import { registerSchema } from "@todo/shared";
 import { useAuthStore } from "@/store/authStore";
 import { useState, type SubmitEvent } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { flattenError, ZodError } from "zod";
-import FormContainer from "@/components/ui/FormContainer";
-import Input from "@/components/ui/Input";
-import ErrorMessage from "@/components/ui/ErrorMessage";
-import Button from "@/components/ui/Button";
 
 const Register = () => {
   const [name, setName] = useState("");
@@ -53,48 +49,7 @@ const Register = () => {
     }
   };
 
-  return (
-    <FormContainer title="Register">
-      <form onSubmit={handleSubmit}>
-        <Input
-          label="Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          error={errors.name}
-        />
-
-        <Input
-          label="Email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value.trim())}
-          error={errors.email}
-        />
-
-        <div className="mb-6">
-          <Input
-            label="Password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value.trim())}
-            error={errors.password}
-          />
-          <ErrorMessage message={apiError} />
-        </div>
-
-        <Button type="submit" disabled={isLoading} variant="primary" fullWidth>
-          {isLoading ? "Creating account..." : "Register"}
-        </Button>
-      </form>
-
-      <p className="mt-4 text-center text-neutral-50/50">
-        Already have an account?{" "}
-        <Link to="/login" className="text-pink-500 hover:underline">
-          Login
-        </Link>
-      </p>
-    </FormContainer>
-  );
+  return <div>Register</div>;
 };
 
 export default Register;

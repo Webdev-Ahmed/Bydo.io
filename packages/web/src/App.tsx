@@ -7,18 +7,17 @@ import {
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import Home from "./pages/Home";
-import Todos from "./pages/todo/Todos";
-import Nav from "./components/Nav";
+import Todos from "./pages/Todos";
 import { useAuthStore } from "./store/authStore";
 import { ProtectedRoute } from "./components/auth/ProtectRoute";
-import UserPage from "./pages/auth/UserPage";
+import Navbar from "./components/Navbar";
 
 const App = () => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   return (
     <Router>
-      <Nav />
+      <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route
@@ -26,14 +25,6 @@ const App = () => {
           element={
             <ProtectedRoute>
               <Todos />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/user"
-          element={
-            <ProtectedRoute>
-              <UserPage />
             </ProtectedRoute>
           }
         />
