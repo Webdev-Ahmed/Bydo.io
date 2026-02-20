@@ -16,6 +16,7 @@ import {
 } from "date-fns";
 import { motion, AnimatePresence } from "motion/react";
 import { ChevronLeft, ChevronRight, CalendarDays, X } from "lucide-react";
+import { ease, calendarDropdownVariants } from "@/lib/animations";
 
 interface CalendarPickerProps {
   value: string;
@@ -25,25 +26,6 @@ interface CalendarPickerProps {
 }
 
 const DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
-
-const dropdownVariants = {
-  hidden: { opacity: 0, y: -8, filter: "blur(6px)" },
-  visible: {
-    opacity: 1,
-    y: 0,
-    filter: "blur(0px)",
-    transition: {
-      duration: 0.28,
-      ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
-    },
-  },
-  exit: {
-    opacity: 0,
-    y: -8,
-    filter: "blur(6px)",
-    transition: { duration: 0.18, ease: "easeIn" as const },
-  },
-};
 
 export const CalendarPicker = ({
   value,
@@ -66,15 +48,12 @@ export const CalendarPicker = ({
       const rect = triggerRef.current.getBoundingClientRect();
       setCoords({ top: rect.bottom + 8, left: rect.left });
     }
-    // Sync viewDate to selected value when opening so the
-    // correct month is always shown — no useEffect needed
     if (value) {
       setViewDate(new Date(value + "T00:00:00"));
     }
     setIsOpen((p) => !p);
   };
 
-  // Close on click outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as Node;
@@ -91,7 +70,6 @@ export const CalendarPicker = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen]);
 
-  // Close on Escape
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setIsOpen(false);
@@ -131,7 +109,6 @@ export const CalendarPicker = ({
 
   return (
     <div className="relative">
-      {/* Trigger */}
       <motion.button
         ref={triggerRef}
         type="button"
@@ -165,7 +142,6 @@ export const CalendarPicker = ({
         </AnimatePresence>
       </motion.button>
 
-      {/* Portal — escapes any parent overflow-hidden */}
       {isOpen &&
         createPortal(
           <AnimatePresence>
@@ -173,12 +149,11 @@ export const CalendarPicker = ({
               ref={containerRef}
               className="absolute z-999 w-64 rounded-2xl border border-text/10 bg-background shadow-xl overflow-hidden"
               style={{ top: coords.top, left: coords.left }}
-              variants={dropdownVariants}
+              variants={calendarDropdownVariants}
               initial="hidden"
               animate="visible"
               exit="exit"
             >
-              {/* Month navigation */}
               <div className="flex items-center justify-between px-4 py-3 border-b border-text/5">
                 <motion.button
                   type="button"
@@ -210,15 +185,7 @@ export const CalendarPicker = ({
                           opacity: 1,
                           x: 0,
                           filter: "blur(0px)",
-                          transition: {
-                            duration: 0.25,
-                            ease: [0.22, 1, 0.36, 1] as [
-                              number,
-                              number,
-                              number,
-                              number,
-                            ],
-                          },
+                          transition: { ease },
                         },
                         exit: (d: number) => ({
                           opacity: 0,
@@ -247,7 +214,6 @@ export const CalendarPicker = ({
                 </motion.button>
               </div>
 
-              {/* Day name headers */}
               <div className="grid grid-cols-7 px-3 pt-3 pb-1">
                 {DAYS.map((d) => (
                   <div
@@ -259,7 +225,6 @@ export const CalendarPicker = ({
                 ))}
               </div>
 
-              {/* Day grid */}
               <div className="overflow-hidden px-3 pb-3">
                 <AnimatePresence mode="wait" initial={false} custom={direction}>
                   <motion.div
@@ -277,13 +242,7 @@ export const CalendarPicker = ({
                         x: 0,
                         filter: "blur(0px)",
                         transition: {
-                          duration: 0.28,
-                          ease: [0.22, 1, 0.36, 1] as [
-                            number,
-                            number,
-                            number,
-                            number,
-                          ],
+                          ease,
                           staggerChildren: 0.015,
                         },
                       },
@@ -345,7 +304,6 @@ export const CalendarPicker = ({
                 </AnimatePresence>
               </div>
 
-              {/* Footer */}
               <div className="border-t border-text/5 px-4 py-2.5 flex items-center justify-between">
                 <motion.button
                   type="button"
