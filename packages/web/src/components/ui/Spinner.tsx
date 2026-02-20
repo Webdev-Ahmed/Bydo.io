@@ -11,8 +11,8 @@ const Spinner = ({ size = "md", variant = "primary" }: SpinnerProps) => {
   };
 
   const variantStyles = {
-    primary: "border-pink-500 border-t-transparent",
-    secondary: "border-neutral-50/30 border-t-transparent",
+    primary: "border-primary border-t-transparent",
+    secondary: "border-text border-t-transparent",
   };
 
   return (

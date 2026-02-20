@@ -4,136 +4,33 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
 }
 
 model User {
-  id                 String              @id @default(uuid())
-  name               String
-  email              String              @unique
-  password           String
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-  todos              Todo[]
-  categories         Category[]
-  transactions       Transaction[]
-  budgets            Budget[]
-  financialReminders FinancialReminder[]
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  todos     Todo[]
 }
 
 model Todo {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   text      String
   note      String?
-  done      Boolean  @default(false)
-  user      User?    @relation(fields: [userId], references: [id])
+  done      Boolean   @default(false)
+  dueDate   DateTime?
+  user      User?     @relation(fields: [userId], references: [id])
   userId    String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
-model Category {
-  id                 String              @id @default(uuid())
-  name               String
-  type               CategoryType
-  color              String?
-  icon               String?
-  user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId             String
-  transactions       Transaction[]
-  budgets            Budget[]
-  financialReminders FinancialReminder[]
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-
-  @@unique([userId, name])
-}
-
-model Transaction {
-  id          String             @id @default(uuid())
-  amount      Float
-  description String
-  date        DateTime
-  type        TransactionType
-  category    Category?          @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  categoryId  String?
-  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      String
-  reminder    FinancialReminder?
-  createdAt   DateTime           @default(now())
-  updatedAt   DateTime           @updatedAt
-
-  @@index([userId, date])
-}
-
-model Budget {
-  id         String   @id @default(uuid())
-  amount     Float
-  month      Int
-  year       Int
-  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  categoryId String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId     String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  @@unique([userId, categoryId, month, year])
-}
-
-model FinancialReminder {
-  id            String       @id @default(uuid())
-  title         String
-  description   String?
-  dueDate       DateTime
-  completed     Boolean      @default(false)
-  priority      Priority     @default(MEDIUM)
-  reminderType  ReminderType
-  amount        Float?
-  category      Category?    @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  categoryId    String?
-  isRecurring   Boolean      @default(false)
-  recurrence    Recurrence?
-  transaction   Transaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
-  transactionId String?      @unique
-  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId        String
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-
-  @@index([userId, dueDate])
-  @@index([userId, completed])
-}
-
-enum CategoryType {
-  INCOME
-  EXPENSE
-}
-
-enum TransactionType {
-  INCOME
-  EXPENSE
-}
-
-enum Priority {
-  LOW
-  MEDIUM
-  HIGH
-  URGENT
-}
-
-enum ReminderType {
-  BILL_PAYMENT
-  BUDGET_REVIEW
-  SAVINGS_GOAL
-  TAX_DEADLINE
-  SUBSCRIPTION_RENEWAL
-  GENERAL
-}
-
-enum Recurrence {
-  WEEKLY
-  MONTHLY
-  QUARTERLY
-  YEARLY
+enum Role {
+  USER
+  ADMIN
 }

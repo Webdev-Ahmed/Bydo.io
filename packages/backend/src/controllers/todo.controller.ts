@@ -17,10 +17,10 @@ export const getAll = async (req: Request, res: Response) => {
 
 export const create = async (req: Request, res: Response) => {
   try {
-    const { text, note } = createTodoSchema.parse(req.body);
+    const { text, note, dueDate } = createTodoSchema.parse(req.body);
 
     const todo = await prisma.todo.create({
-      data: { text, note, userId: req.user!.id },
+      data: { text, note, dueDate: dueDate ?? null, userId: req.user!.id },
     });
 
     if (!todo) {
@@ -40,7 +40,7 @@ export const create = async (req: Request, res: Response) => {
 export const update = async (req: Request, res: Response) => {
   try {
     const todoId = req.params.id as string | undefined;
-    const { text, note, done } = updateTodoSchema.parse(req.body);
+    const { text, note, dueDate, done } = updateTodoSchema.parse(req.body);
 
     if (!todoId) {
       return res.status(400).json({ message: "Invalid todo id" });
@@ -54,7 +54,7 @@ export const update = async (req: Request, res: Response) => {
 
     const updatedTodo = await prisma.todo.update({
       where: { id: todoId },
-      data: { text, note, done },
+      data: { text, note, dueDate, done },
     });
 
     if (!updatedTodo) {

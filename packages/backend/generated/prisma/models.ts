@@ -10,8 +10,4 @@
  */
 export type * from './models/User.ts'
 export type * from './models/Todo.ts'
-export type * from './models/Category.ts'
-export type * from './models/Transaction.ts'
-export type * from './models/Budget.ts'
-export type * from './models/FinancialReminder.ts'
 export type * from './commonInputTypes.ts'

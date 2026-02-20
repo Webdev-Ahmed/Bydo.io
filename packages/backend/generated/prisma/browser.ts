@@ -27,23 +27,3 @@ export type User = Prisma.UserModel
  * 
  */
 export type Todo = Prisma.TodoModel
-/**
- * Model Category
- * 
- */
-export type Category = Prisma.CategoryModel
-/**
- * Model Transaction
- * 
- */
-export type Transaction = Prisma.TransactionModel
-/**
- * Model Budget
- * 
- */
-export type Budget = Prisma.BudgetModel
-/**
- * Model FinancialReminder
- * 
- */
-export type FinancialReminder = Prisma.FinancialReminderModel

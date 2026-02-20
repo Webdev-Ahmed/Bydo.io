@@ -8,16 +8,60 @@
   --color-primary: #f80429;
   --color-secondary: #ef233c;
 
-  --default-font-family: "Inter", sans-serif;
+  --default-font-family: "Inter";
+  --font-serif: "Unna";
   --font-inter: "Inter", sans-serif;
+  --font-playfair: "Unna", serif;
 }
 
 @layer base {
+  * {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  *::-webkit-scrollbar {
+    display: none;
+  }
+
   @font-face {
     font-family: "Inter";
-    src: url("./fonts/Inter-VariableFont_opsz\,wght.ttf") format("tff");
     font-style: normal;
     font-display: swap;
+    font-weight: 100 900;
+    src: url("/fonts/Inter-VariableFont_opsz,wght.ttf") format("truetype");
+  }
+
+  @font-face {
+    font-family: "Unna";
+    font-style: normal;
+    font-display: swap;
+    font-weight: normal;
+    src: url("/fonts/serif/Unna-Regular.ttf") format("truetype");
+  }
+
+  @font-face {
+    font-family: "Unna";
+    font-style: italic;
+    font-display: swap;
+    font-weight: normal;
+    src: url("/fonts/serif/Unna-Italic.ttf") format("truetype");
+  }
+
+  @font-face {
+    font-family: "Unna";
+    font-style: normal;
+    font-display: swap;
+    font-weight: normal;
+    src: url("/fonts/serif/Unna-Bold.ttf") format("truetype");
+  }
+
+  @font-face {
+    font-family: "Unna";
+    font-style: italic;
+    font-display: swap;
+    font-weight: bold;
+    src: url("/fonts/serif/Unna-BoldItalic.ttf") format("truetype");
   }
 }
 
@@ -31,4 +75,13 @@
       --color-secondary: #d90429;
     }
   }
+}
+
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-delay: 0.001ms !important;
+  transition-duration: 0.001ms !important;
+  transition-delay: 0.001ms !important;
 }

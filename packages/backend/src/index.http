@@ -21,7 +21,7 @@ POST http://localhost:5000/api/todo/
 Content-Type: application/json
 
 {
-  "text": "Feed the cat tonight"
+  "text": "IDK"
 }
 
 ###

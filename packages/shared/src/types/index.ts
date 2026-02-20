@@ -2,6 +2,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
+  role: "USER" | "ADMIN";
   createdAt: string;
   updatedAt: string;
 }
@@ -11,7 +12,12 @@ export interface Todo {
   text: string;
   note: string | null;
   done: boolean;
+  dueDate?: string;
+
   userId: string | null;
+
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface AuthResponse {

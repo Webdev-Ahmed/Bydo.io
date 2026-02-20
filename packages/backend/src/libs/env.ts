@@ -7,6 +7,7 @@ const EnvSchema = z.object({
   NODE_ENV: z.string().default("development"),
   PORT: z.coerce.number().default(5000),
   DATABASE_URL: z.string().default("file:./dev.db"),
+  DIRECT_URL: z.string().default("file:./dev.db"),
   JWT_SECRET: z.string(),
   FRONTEND_URL: z.string().optional(),
 });

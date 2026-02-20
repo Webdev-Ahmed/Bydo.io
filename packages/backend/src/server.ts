@@ -3,12 +3,9 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import env from "./libs/env";
 
+import adminRoutes from "@/routes/admin.routes";
 import authRoutes from "@/routes/auth.routes";
 import todoRoutes from "@/routes/todo.routes";
-import categoryRoutes from "@/routes/category.routes";
-import transactionRoutes from "@/routes/transaction.routes";
-import budgetRoutes from "@/routes/budget.routes";
-import reminderRoutes from "@/routes/reminder.routes";
 
 const app = express();
 
@@ -29,12 +26,9 @@ app.get("/health", (req, res) => {
   return res.json({ status: "ok", message: "The server is up and running 🍀" });
 });
 
+app.use("/api/admin", adminRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/todo", todoRoutes);
-app.use("/api/categories", categoryRoutes);
-app.use("/api/transactions", transactionRoutes);
-app.use("/api/budgets", budgetRoutes);
-app.use("/api/reminders", reminderRoutes);
 
 const PORT = env.PORT;
 

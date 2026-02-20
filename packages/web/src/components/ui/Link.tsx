@@ -8,6 +8,7 @@ interface LinkProps {
   className?: string;
   colored?: boolean;
   outline?: boolean;
+  onClick?: () => void;
 }
 
 const Link = ({
@@ -17,11 +18,12 @@ const Link = ({
   className,
   colored = false,
   outline = false,
+  onClick,
 }: LinkProps) => {
   const classes = cn(
     `font-medium transition-colors ${colored ? "text-primary" : ""}`,
     variant === "button"
-      ? `${colored ? "hover:bg-primary/10" : "hover:bg-text/10"} px-4 py-2 rounded-full ${outline ? "border border-text/10 hover:border-text/20" : ""}`
+      ? `${colored ? "hover:bg-primary/10" : "hover:bg-text/10"} px-4 py-2 rounded-full selection:bg-transparent ${outline ? "border border-text/10 hover:border-text/20" : ""}`
       : variant === "button-filled"
         ? `bg-primary hover:bg-primary/90 px-4 py-2 rounded-full ${outline ? "border border-text/10 hover:border-text/20" : ""}`
         : "hover:underline",
@@ -29,7 +31,7 @@ const Link = ({
   );
 
   return (
-    <RouterLink to={to} className={classes}>
+    <RouterLink onClick={onClick} to={to} className={classes}>
       {children}
     </RouterLink>
   );

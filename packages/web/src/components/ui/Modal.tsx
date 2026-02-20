@@ -89,7 +89,7 @@ const Modal = ({
             initial="hidden"
             animate="visible"
             exit="exit"
-            className={`fixed z-50 inset-0 flex items-center justify-center px-4 pointer-events-none`}
+            className={`fixed z-50 inset-0 flex items-center justify-center px-4 pointer-events-none overflow-hidden`}
           >
             <div
               className={`relative w-full ${sizeStyles[size]} bg-background border border-text/10 rounded-2xl shadow-2xl p-6 pointer-events-auto`}
