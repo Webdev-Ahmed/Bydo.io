@@ -1,24 +1,9 @@
 import { motion } from "motion/react";
+import {
+  filterPillsContainerVariants,
+  filterPillVariants,
+} from "@/lib/animations";
 import type { Filter } from "@/types";
-
-const filtersContainerVariants = {
-  hidden: {},
-  visible: {
-    transition: { staggerChildren: 0.07, delayChildren: 0.3 },
-  },
-};
-
-const filterPillVariants = {
-  hidden: { opacity: 0, y: 8 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.35,
-      ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
-    },
-  },
-};
 
 const FILTERS: { label: string; value: Filter }[] = [
   { label: "All", value: "all" },
@@ -34,7 +19,7 @@ interface FilterPillsProps {
 export const FilterPills = ({ filter, onChange }: FilterPillsProps) => (
   <motion.div
     className="flex items-center gap-2 mt-4"
-    variants={filtersContainerVariants}
+    variants={filterPillsContainerVariants}
     initial="hidden"
     animate="visible"
   >

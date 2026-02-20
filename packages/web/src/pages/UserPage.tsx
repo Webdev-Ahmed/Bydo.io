@@ -7,7 +7,7 @@ import InfoRow from "@/components/ui/InfoRow";
 import SettingRow from "@/components/ui/SettingRow";
 import UserAvatar from "@/components/ui/UserAvatar";
 import { useAuthStore } from "@/store/authStore";
-import { useSettingsStore } from "@/store/settingStore";
+import { useSettingsStore, type AnimationSpeed } from "@/store/settingStore";
 import { formatDate, formatDistanceToNow } from "date-fns";
 import { motion } from "motion/react";
 import {
@@ -26,12 +26,48 @@ import {
   ShieldCheck,
   Users,
   ArrowRight,
+  Gauge,
 } from "lucide-react";
 import api from "@/lib/axios";
 
+// ─── Speed selector ───────────────────────────────────────────────────────────
+
+const SPEED_OPTIONS: { value: AnimationSpeed; label: string }[] = [
+  { value: "slow", label: "Slow" },
+  { value: "normal", label: "Normal" },
+  { value: "fast", label: "Fast" },
+];
+
+const SpeedSelector = ({
+  value,
+  onChange,
+}: {
+  value: AnimationSpeed;
+  onChange: (v: AnimationSpeed) => void;
+}) => (
+  <div className="flex gap-1 p-1 rounded-xl bg-text/5 border border-text/8">
+    {SPEED_OPTIONS.map((opt) => (
+      <button
+        key={opt.value}
+        onClick={() => onChange(opt.value)}
+        className={`flex-1 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors ${
+          value === opt.value
+            ? "bg-background text-text/80 shadow-sm border border-text/10"
+            : "text-text/35 hover:text-text/60"
+        }`}
+      >
+        {opt.label}
+      </button>
+    ))}
+  </div>
+);
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
+
 const UserPage = () => {
   const { user, checkAuth, logout, isAdmin } = useAuthStore();
-  const { reduceMotion, setReduceMotion } = useSettingsStore();
+  const { reduceMotion, setReduceMotion, animationSpeed, setAnimationSpeed } =
+    useSettingsStore();
   const navigate = useNavigate();
 
   const [editOpen, setEditOpen] = useState(false);
@@ -271,7 +307,7 @@ const UserPage = () => {
                 <p className="text-xs font-semibold uppercase tracking-widest text-text/30 font-serif">
                   Preferences
                 </p>
-                <div className="mt-3">
+                <div className="mt-3 flex flex-col gap-0">
                   <SettingRow
                     icon={Zap}
                     label="Reduce motion"
@@ -279,6 +315,30 @@ const UserPage = () => {
                     checked={reduceMotion}
                     onChange={() => setReduceMotion(!reduceMotion)}
                   />
+
+                  {!reduceMotion && (
+                    <div className="flex items-start gap-4 py-3.5 border-t border-text/6">
+                      <div className="size-8 rounded-lg bg-text/5 border border-text/8 flex items-center justify-center shrink-0">
+                        <Gauge className="size-3.5 text-text/40" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-4 mb-2">
+                          <div>
+                            <p className="text-sm font-medium text-text/70">
+                              Animation speed
+                            </p>
+                            <p className="text-xs text-text/35 mt-0.5">
+                              Controls how fast animations play across the app.
+                            </p>
+                          </div>
+                        </div>
+                        <SpeedSelector
+                          value={animationSpeed}
+                          onChange={setAnimationSpeed}
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
               </motion.div>
             </div>

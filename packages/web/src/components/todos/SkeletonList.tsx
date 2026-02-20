@@ -1,12 +1,5 @@
 import { motion } from "motion/react";
-
-const skeletonVariants = {
-  hidden: { opacity: 0 },
-  visible: (i: number) => ({
-    opacity: 1,
-    transition: { delay: i * 0.08, duration: 0.4 },
-  }),
-};
+import { skeletonItemVariants } from "@/lib/animations";
 
 export const SkeletonList = () => (
   <ul className="flex flex-col">
@@ -15,7 +8,7 @@ export const SkeletonList = () => (
         key={i}
         className="flex items-center justify-between gap-4 py-3"
         custom={i}
-        variants={skeletonVariants}
+        variants={skeletonItemVariants}
         initial="hidden"
         animate="visible"
       >

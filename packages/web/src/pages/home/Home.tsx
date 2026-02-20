@@ -3,80 +3,14 @@ import Layout from "@/components/Layout";
 import Button from "@/components/ui/Button";
 import Link from "@/components/ui/Link";
 import { motion } from "motion/react";
-
-const heroLeftVariants = {
-  hidden: { opacity: 0, x: -40, filter: "blur(8px)" },
-  visible: {
-    opacity: 1,
-    x: 0,
-    filter: "blur(0px)",
-    transition: {
-      duration: 0.7,
-      ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
-    },
-  },
-};
-
-const heroRightVariants = {
-  hidden: { opacity: 0, x: 40, filter: "blur(8px)" },
-  visible: {
-    opacity: 1,
-    x: 0,
-    filter: "blur(0px)",
-    transition: {
-      duration: 0.7,
-      ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
-      delay: 0.15,
-      staggerChildren: 0.12,
-      delayChildren: 0.3,
-    },
-  },
-};
-
-const heroRightItemVariants = {
-  hidden: { opacity: 0, y: 12 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.45,
-      ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
-    },
-  },
-};
-
-const tagsLeftVariants = {
-  hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.08,
-      delayChildren: 0.6,
-    },
-  },
-};
-
-const tagsRightVariants = {
-  hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.08,
-      delayChildren: 0.75,
-    },
-  },
-};
-
-const tagVariants = {
-  hidden: { opacity: 0, y: 16, filter: "blur(4px)" },
-  visible: {
-    opacity: 1,
-    y: 0,
-    filter: "blur(0px)",
-    transition: {
-      duration: 0.4,
-      ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
-    },
-  },
-};
+import {
+  heroLeftVariants,
+  heroRightVariants,
+  fadeUpVariants,
+  tagsLeftContainerVariants,
+  tagsRightContainerVariants,
+  tagVariants,
+} from "@/lib/animations";
 
 const Home = () => {
   const navigator = useNavigate();
@@ -107,7 +41,7 @@ const Home = () => {
         >
           <motion.p
             className="text-text/80 text-sm font-medium mb-7"
-            variants={heroRightItemVariants}
+            variants={fadeUpVariants}
           >
             Turn{" "}
             <span className="font-serif font-bold italic text-base text-primary">
@@ -118,7 +52,7 @@ const Home = () => {
           </motion.p>
 
           <motion.div
-            variants={heroRightItemVariants}
+            variants={fadeUpVariants}
             whileHover={{ x: 4 }}
             whileTap={{ x: 0 }}
             transition={{ duration: 0.2 }}
@@ -137,7 +71,7 @@ const Home = () => {
       <section className="flex flex-wrap gap-2 w-full mt-10 px-4 sm:px-6 justify-between">
         <motion.div
           className="flex flex-wrap gap-2"
-          variants={tagsLeftVariants}
+          variants={tagsLeftContainerVariants}
           initial="hidden"
           animate="visible"
         >
@@ -160,7 +94,7 @@ const Home = () => {
 
         <motion.div
           className="flex flex-wrap gap-2"
-          variants={tagsRightVariants}
+          variants={tagsRightContainerVariants}
           initial="hidden"
           animate="visible"
         >
