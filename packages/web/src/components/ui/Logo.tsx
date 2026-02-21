@@ -9,7 +9,7 @@ const Logo = ({ className }: { className?: string }) => {
 
   return (
     <Link to="/">
-      <div className={classes}>T</div>
+      <div className={classes}>B</div>
     </Link>
   );
 };

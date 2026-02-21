@@ -48,7 +48,7 @@ const Navbar = () => {
         >
           <Logo />
           <RouterLink to="/" onClick={closeMobile}>
-            <h1 className="text-3xl font-bold font-serif">Todoz.io</h1>
+            <h1 className="text-3xl font-bold font-serif">Bydo.io</h1>
           </RouterLink>
         </motion.div>
 
