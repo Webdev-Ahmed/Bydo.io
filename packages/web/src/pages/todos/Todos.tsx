@@ -1,6 +1,7 @@
 import Layout from "@/components/Layout";
 import { useTodoStore } from "@/store/todoStore";
 import { useEffect, useState, useRef, useMemo, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import { formatDate } from "date-fns";
 import Button from "@/components/ui/Button";
 import { Plus, CheckCheck, Trash2 } from "lucide-react";
@@ -42,6 +43,22 @@ const Todos = () => {
     toggleTodo,
     isLoading,
   } = useTodoStore();
+
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const [highlightId, setHighlightId] = useState<string | null>(() =>
+    searchParams.get("highlight"),
+  );
+
+  useEffect(() => {
+    if (!highlightId) return;
+    const next = new URLSearchParams(searchParams);
+    next.delete("highlight");
+    setSearchParams(next, { replace: true });
+    const t = setTimeout(() => setHighlightId(null), 2500);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const now = new Date();
   const dayName = formatDate(now, "EEEE");
@@ -414,6 +431,7 @@ const Todos = () => {
                         label={group}
                         todos={groupedTodos[group]!}
                         groupIdx={groupIdx}
+                        highlightId={highlightId}
                         editingId={editingId}
                         editingText={editingText}
                         onStartEdit={handleStartEdit}
