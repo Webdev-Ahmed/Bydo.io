@@ -1,20 +1,16 @@
 import { loginSchema } from "@todo/shared";
-import { useAuthStore } from "@/store/authStore";
 import { useState, type SubmitEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { flattenError, ZodError } from "zod";
-import Divider from "@/components/ui/Divider";
-import Button from "@/components/ui/Button";
-import Input from "@/components/ui/Input";
-import Link from "@/components/ui/Link";
-import Spinner from "@/components/ui/Spinner";
-import Logo from "@/components/ui/Logo";
 import { motion, AnimatePresence, useAnimate } from "motion/react";
+
+import { Divider, Button, Input, Link, Spinner, Logo } from "@/components/";
+import { useAuthStore } from "@/store/authStore";
 import {
   authPageVariants,
   authSectionVariants,
-  authItemVariants,
   authLogoVariants,
+  authItemVariants,
 } from "@/lib/animations";
 
 const Login = () => {

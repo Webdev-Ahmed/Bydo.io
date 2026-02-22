@@ -1,7 +1,7 @@
 import { useThemeStore } from "@/store/themeStore";
 import { useEffect, type ReactNode } from "react";
 
-export function ThemeProvider({ children }: { children: ReactNode }) {
+const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const initializeTheme = useThemeStore((state) => state.initializeTheme);
 
   useEffect(() => {
@@ -9,4 +9,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, [initializeTheme]);
 
   return <>{children}</>;
-}
+};
+
+export default ThemeProvider;

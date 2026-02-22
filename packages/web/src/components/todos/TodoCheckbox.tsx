@@ -6,11 +6,7 @@ interface TodoCheckboxProps {
   label: string;
 }
 
-export const TodoCheckbox = ({
-  checked,
-  onChange,
-  label,
-}: TodoCheckboxProps) => (
+const TodoCheckbox = ({ checked, onChange, label }: TodoCheckboxProps) => (
   <button
     role="checkbox"
     aria-checked={checked}
@@ -65,3 +61,5 @@ export const TodoCheckbox = ({
     </AnimatePresence>
   </button>
 );
+
+export default TodoCheckbox;

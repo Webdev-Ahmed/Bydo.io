@@ -1,9 +1,7 @@
-import Layout from "@/components/Layout";
-import { useTodoStore } from "@/store/todoStore";
+import type { Todo, UpdateTodoInput } from "@todo/shared";
 import { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { formatDate } from "date-fns";
-import Button from "@/components/ui/Button";
 import { Plus, CheckCheck, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import {
@@ -16,11 +14,17 @@ import {
   type DragEndEvent,
 } from "@dnd-kit/core";
 import { arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
-import { SkeletonList } from "@/components/todos/SkeletonList";
-import { FilterPills } from "@/components/todos/FilterPills";
-import { TodoGroup } from "@/components/todos/TodoGroup";
-import { UndoToast } from "@/components/todos/UndoToast";
-import { CalendarPicker } from "@/components/ui/CalendarPicker";
+
+import {
+  Button,
+  Layout,
+  SkeletonList,
+  FilterPills,
+  TodoGroup,
+  CalendarPicker,
+  UndoToast,
+} from "@/components/";
+import { useTodoStore } from "@/store/todoStore";
 import {
   todosHeaderVariants,
   todosFormVariants,
@@ -31,7 +35,6 @@ import {
 } from "@/lib/animations";
 import { getDateGroup, toDateStr, DATE_GROUP_ORDER } from "@/lib/todos";
 import type { Filter } from "@/types";
-import type { Todo, UpdateTodoInput } from "@todo/shared";
 
 const Todos = () => {
   const {

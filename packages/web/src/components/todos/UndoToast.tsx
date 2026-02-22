@@ -6,7 +6,7 @@ interface UndoToastProps {
   onDismiss: () => void;
 }
 
-export const UndoToast = ({ message, onUndo, onDismiss }: UndoToastProps) => (
+const UndoToast = ({ message, onUndo, onDismiss }: UndoToastProps) => (
   <motion.div
     className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-5 py-3 rounded-full bg-text text-background text-sm font-medium shadow-xl"
     initial={{ opacity: 0, y: 20, filter: "blur(6px)" }}
@@ -32,3 +32,5 @@ export const UndoToast = ({ message, onUndo, onDismiss }: UndoToastProps) => (
     </button>
   </motion.div>
 );
+
+export default UndoToast;

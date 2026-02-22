@@ -27,7 +27,7 @@ interface CalendarPickerProps {
 
 const DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 
-export const CalendarPicker = ({
+const CalendarPicker = ({
   value,
   onChange,
   placeholder = "Pick a date",
@@ -340,3 +340,5 @@ export const CalendarPicker = ({
     </div>
   );
 };
+
+export default CalendarPicker;

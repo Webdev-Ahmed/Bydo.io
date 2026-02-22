@@ -1,6 +1,5 @@
+import type { Todo } from "@todo/shared";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import Layout from "@/components/Layout";
-import { useTodoStore } from "@/store/todoStore";
 import { motion, AnimatePresence } from "motion/react";
 import {
   format,
@@ -23,13 +22,15 @@ import {
   CheckSquare,
   FileText,
 } from "lucide-react";
+
 import {
   ease,
   fadeUpVariants,
   staggerContainer,
   dayCellVariants,
 } from "@/lib/animations";
-import type { Todo } from "@todo/shared";
+import { Layout } from "@/components";
+import { useTodoStore } from "@/store/todoStore";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -369,7 +370,6 @@ const CalendarPage = () => {
     setSelectedDay(now);
   }, [viewDate]);
 
-  // Keyboard navigation: ← → month, Escape closes panel
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (

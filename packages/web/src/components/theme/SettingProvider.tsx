@@ -3,7 +3,7 @@ import { useEffect, type ReactNode } from "react";
 import { MotionConfig } from "motion/react";
 import { ease } from "@/lib/animations";
 
-export function SettingsProvider({ children }: { children: ReactNode }) {
+const SettingsProvider = ({ children }: { children: ReactNode }) => {
   const { initializeSettings, reduceMotion, animationSpeed } =
     useSettingsStore();
 
@@ -19,4 +19,6 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       {children}
     </MotionConfig>
   );
-}
+};
+
+export default SettingsProvider;

@@ -16,8 +16,6 @@ const themeOptions: ThemeOption[] = [
   { value: "auto", label: "Auto", icon: Monitor },
 ];
 
-// -- Variants --
-
 const dropdownVariants = {
   hidden: {
     opacity: 0,
@@ -80,8 +78,6 @@ const checkVariants = {
   },
 };
 
-// -- Component --
-
 export default function ThemeSelect() {
   const { theme, setTheme } = useThemeStore();
   const [isOpen, setIsOpen] = useState(false);
@@ -122,7 +118,6 @@ export default function ThemeSelect() {
           aria-label="Select theme"
           aria-expanded={isOpen}
         >
-          {/* Icon swaps with AnimatePresence when theme changes */}
           <AnimatePresence mode="wait" initial={false}>
             <motion.span
               key={currentOption?.value}
@@ -136,7 +131,6 @@ export default function ThemeSelect() {
             </motion.span>
           </AnimatePresence>
 
-          {/* Label swaps alongside icon */}
           <AnimatePresence mode="wait" initial={false}>
             <motion.span
               key={currentOption?.label}
@@ -149,7 +143,6 @@ export default function ThemeSelect() {
             </motion.span>
           </AnimatePresence>
 
-          {/* Chevron flips smoothly via motion instead of CSS */}
           <motion.span
             animate={{ rotate: isOpen ? 180 : 0 }}
             transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
@@ -160,7 +153,6 @@ export default function ThemeSelect() {
         </button>
       </div>
 
-      {/* Dropdown menu */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -191,7 +183,6 @@ export default function ThemeSelect() {
                   <Icon className="w-4 h-4" />
                   <span className="flex-1 text-left">{option.label}</span>
 
-                  {/* Check icon animates in/out per item */}
                   <AnimatePresence initial={false}>
                     {isSelected && (
                       <motion.span

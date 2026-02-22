@@ -1,7 +1,7 @@
 import { motion } from "motion/react";
 import { skeletonItemVariants } from "@/lib/animations";
 
-export const SkeletonList = () => (
+const SkeletonList = () => (
   <ul className="flex flex-col">
     {Array.from({ length: 4 }).map((_, i) => (
       <motion.li
@@ -24,3 +24,5 @@ export const SkeletonList = () => (
     ))}
   </ul>
 );
+
+export default SkeletonList;

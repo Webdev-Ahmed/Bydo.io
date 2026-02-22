@@ -2,7 +2,7 @@ import { useAuthStore } from "@/store/authStore";
 import Spinner from "../ui/Spinner";
 import { Navigate } from "react-router-dom";
 
-export function ProtectedRoute({ children }: { children: React.ReactNode }) {
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, isLoading } = useAuthStore();
 
   if (isLoading)
@@ -14,4 +14,6 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   if (!isLoading && !isAuthenticated) return <Navigate to="/unauthorized" />;
 
   return <>{children}</>;
-}
+};
+
+export default ProtectedRoute;

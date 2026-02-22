@@ -16,7 +16,7 @@ interface FilterPillsProps {
   onChange: (f: Filter) => void;
 }
 
-export const FilterPills = ({ filter, onChange }: FilterPillsProps) => (
+const FilterPills = ({ filter, onChange }: FilterPillsProps) => (
   <motion.div
     className="flex items-center gap-2 mt-4"
     variants={filterPillsContainerVariants}
@@ -42,3 +42,5 @@ export const FilterPills = ({ filter, onChange }: FilterPillsProps) => (
     ))}
   </motion.div>
 );
+
+export default FilterPills;

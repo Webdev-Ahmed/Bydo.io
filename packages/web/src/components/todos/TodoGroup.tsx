@@ -3,8 +3,7 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { TodoItem } from "./TodoItem";
-import SectionHeader from "@/components/ui/SectionHeader";
+import { TodoItem, SectionHeader } from "@/components";
 import { slideLeftVariants } from "@/lib/animations";
 import type { Todo } from "@todo/shared";
 
@@ -24,7 +23,7 @@ interface TodoGroupProps {
   onEditingTextChange: (text: string) => void;
 }
 
-export const TodoGroup = ({
+const TodoGroup = ({
   label,
   todos,
   groupIdx,
@@ -81,3 +80,5 @@ export const TodoGroup = ({
     </SortableContext>
   </motion.div>
 );
+
+export default TodoGroup;

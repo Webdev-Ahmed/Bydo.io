@@ -13,6 +13,8 @@ import {
   ArrowRight,
   CornerDownLeft,
 } from "lucide-react";
+import { formatDate, isPast, isToday } from "date-fns";
+
 import { useCommandPalette } from "@/store/commandPaletteStore";
 import { useAuthStore } from "@/store/authStore";
 import { useTodoStore } from "@/store/todoStore";
@@ -20,7 +22,6 @@ import {
   commandPaletteBackdropVariants,
   commandPaletteVariants,
 } from "@/lib/animations";
-import { formatDate, isPast, isToday } from "date-fns";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -387,7 +388,7 @@ const PalettePanel = ({
   );
 };
 
-export const CommandPalette = () => {
+const CommandPalette = () => {
   const { isOpen, close } = useCommandPalette();
   const { isAdmin } = useAuthStore();
   const { todos } = useTodoStore();
@@ -448,3 +449,5 @@ export const CommandPalette = () => {
     </AnimatePresence>
   );
 };
+
+export default CommandPalette;

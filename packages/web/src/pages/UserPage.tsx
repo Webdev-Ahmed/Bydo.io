@@ -1,20 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Layout from "@/components/Layout";
-import Modal from "@/components/ui/Modal";
-import Button from "@/components/ui/Button";
-import InfoRow from "@/components/ui/InfoRow";
-import SettingRow from "@/components/ui/SettingRow";
-import UserAvatar from "@/components/ui/UserAvatar";
-import { useAuthStore } from "@/store/authStore";
-import { useSettingsStore, type AnimationSpeed } from "@/store/settingStore";
-import { formatDate, formatDistanceToNow } from "date-fns";
 import { motion } from "motion/react";
-import {
-  staggerContainer,
-  cardFadeVariants,
-  fadeUpVariants,
-} from "@/lib/animations";
+import { formatDate, formatDistanceToNow } from "date-fns";
 import {
   User,
   Mail,
@@ -28,6 +15,22 @@ import {
   ArrowRight,
   Gauge,
 } from "lucide-react";
+
+import {
+  Layout,
+  Modal,
+  Button,
+  InfoRow,
+  SettingRow,
+  UserAvatar,
+} from "@/components";
+import { useAuthStore } from "@/store/authStore";
+import { useSettingsStore, type AnimationSpeed } from "@/store/settingStore";
+import {
+  staggerContainer,
+  cardFadeVariants,
+  fadeUpVariants,
+} from "@/lib/animations";
 import api from "@/lib/axios";
 
 // ─── Speed selector ───────────────────────────────────────────────────────────

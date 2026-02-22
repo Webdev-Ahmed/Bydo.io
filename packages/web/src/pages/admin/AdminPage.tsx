@@ -1,16 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Layout from "@/components/Layout";
-import Button from "@/components/ui/Button";
-import SectionHeader from "@/components/ui/SectionHeader";
-import StatCard from "@/components/ui/StatCard";
-import UserAvatar from "@/components/ui/UserAvatar";
-import RoleBadge from "@/components/ui/RoleBadge";
-import ErrorCard from "@/components/ui/ErrorCard";
-import { useAuthStore } from "@/store/authStore";
 import { motion, AnimatePresence } from "motion/react";
-import { ease, fadeUpVariants, staggerContainer } from "@/lib/animations";
-import { formatDate } from "date-fns";
 import {
   Users,
   CheckSquare,
@@ -22,8 +12,22 @@ import {
   Clock,
   Calendar,
 } from "lucide-react";
-import api from "@/lib/axios";
+import { formatDate } from "date-fns";
+
+import {
+  Layout,
+  Button,
+  SectionHeader,
+  StatCard,
+  UserAvatar,
+  RoleBadge,
+  ErrorCard,
+} from "@/components/";
+import { useAuthStore } from "@/store/authStore";
+import { ease, fadeUpVariants, staggerContainer } from "@/lib/animations";
 import type { AdminUser, AdminTodo } from "@/types/admin.type";
+
+import api from "@/lib/axios";
 
 // ─── StatPill ─────────────────────────────────────────────────────────────────
 

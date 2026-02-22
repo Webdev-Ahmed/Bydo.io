@@ -1,8 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import Layout from "@/components/Layout";
-import Button from "@/components/ui/Button";
-import Link from "@/components/ui/Link";
 import { motion } from "motion/react";
+
+import { Layout, Button, Link } from "@/components/";
 import {
   heroLeftVariants,
   heroRightVariants,

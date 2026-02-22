@@ -1,14 +1,12 @@
 import { useState } from "react";
+import { Menu, X, Search, CommandIcon } from "lucide-react";
 import { Link as RouterLink } from "react-router-dom";
-import { NAV_LINKS } from "../constants";
-import Logo from "./ui/Logo";
-import Link from "./ui/Link";
-import Divider from "./ui/Divider";
-import ThemeSelect from "./theme/ThemeSelect";
 import { AnimatePresence, motion } from "motion/react";
+
+import { NAV_LINKS } from "@/constants";
+import { Logo, Link, Divider, ThemeSelect } from "@/components";
 import { useAuthStore } from "@/store/authStore";
 import { useCommandPalette } from "@/store/commandPaletteStore";
-import { Menu, X, Search, CommandIcon } from "lucide-react";
 import {
   navVariants,
   navLogoVariants,

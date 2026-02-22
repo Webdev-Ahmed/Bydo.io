@@ -12,9 +12,7 @@ import {
   Pencil,
   Trash2,
 } from "lucide-react";
-import Button from "@/components/ui/Button";
-import { TodoCheckbox } from "./TodoCheckbox";
-import { CalendarPicker } from "@/components/ui/CalendarPicker";
+import { CalendarPicker, Button, TodoCheckbox } from "@/components";
 import {
   todoItemVariants,
   todoButtonGroupVariants,
@@ -37,7 +35,7 @@ interface TodoItemProps {
   onEditingTextChange: (text: string) => void;
 }
 
-export const TodoItem = ({
+const TodoItem = ({
   todo,
   isEditing,
   editingText,
@@ -66,7 +64,6 @@ export const TodoItem = ({
     isDragging,
   } = useSortable({ id: todo.id });
 
-  // Merge sortable ref with our own itemRef
   const setRefs = (el: HTMLLIElement | null) => {
     (itemRef as React.MutableRefObject<HTMLLIElement | null>).current = el;
     setNodeRef(el);
@@ -79,13 +76,12 @@ export const TodoItem = ({
     zIndex: isDragging ? 10 : undefined,
   };
 
-  // Highlight: scroll into view then flash ring, then fade out after 2s
   useEffect(() => {
     if (!isHighlighted) return;
     const scrollTimer = setTimeout(() => {
       itemRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
       setShowHighlight(true);
-      const fadeTimer = setTimeout(() => setShowHighlight(false), 2000);
+      const fadeTimer = setTimeout(() => setShowHighlight(false), 3000);
       return () => clearTimeout(fadeTimer);
     }, 300);
     return () => clearTimeout(scrollTimer);
@@ -338,3 +334,5 @@ export const TodoItem = ({
     </motion.li>
   );
 };
+
+export default TodoItem;

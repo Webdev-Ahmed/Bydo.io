@@ -1,14 +1,5 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import Layout from "@/components/Layout";
-import Button from "@/components/ui/Button";
-import FadeUp from "@/components/ui/FadeUp";
-import InfoRow from "@/components/ui/InfoRow";
-import SectionHeader from "@/components/ui/SectionHeader";
-import StatCard from "@/components/ui/StatCard";
-import UserAvatar from "@/components/ui/UserAvatar";
-import RoleBadge from "@/components/ui/RoleBadge";
-import ErrorCard from "@/components/ui/ErrorCard";
 import { formatDate, formatDistanceToNow, isPast, isToday } from "date-fns";
 import {
   ArrowLeft,
@@ -22,8 +13,21 @@ import {
   Trash2,
   FileText,
 } from "lucide-react";
-import api from "@/lib/axios";
+
+import {
+  Layout,
+  Button,
+  FadeUp,
+  InfoRow,
+  SectionHeader,
+  StatCard,
+  UserAvatar,
+  RoleBadge,
+  ErrorCard,
+} from "@/components";
 import type { AdminUser, AdminTodo } from "@/types/admin.type";
+
+import api from "@/lib/axios";
 
 // ─── TodoRow ──────────────────────────────────────────────────────────────────
 
