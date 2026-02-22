@@ -45,7 +45,7 @@ const Navbar = () => {
           variants={navLogoVariants}
           className="flex items-center gap-3"
         >
-          <Logo />
+          <Logo rounded />
           <RouterLink to="/" onClick={closeMobile}>
             <h1 className="text-3xl font-bold font-serif">Bydo.io</h1>
           </RouterLink>
