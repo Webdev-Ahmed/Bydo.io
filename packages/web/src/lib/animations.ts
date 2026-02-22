@@ -62,6 +62,7 @@ export const errorPageItemVariants = {
   visible: { opacity: 1, y: 0, transition: { ease } },
 };
 
+// Spring — speed setting does not apply (no duration)
 export const errorPageIconVariants = {
   hidden: { opacity: 0, scale: 0.5 },
   visible: {
@@ -76,6 +77,7 @@ export const errorPageIconVariants = {
   },
 };
 
+// Loop animation — duration is intentional, not speed-controlled
 export const compassNeedleVariants = {
   animate: {
     rotate: [0, 20, -20, 10, -10, 0],
@@ -255,6 +257,8 @@ export const filterPillVariants = {
 
 // ─── Skeleton list ────────────────────────────────────────────────────────────
 
+// Uses custom index for per-item delay — duration kept since it's index-based,
+// not a standard entrance that should scale with animation speed.
 export const skeletonItemVariants = {
   hidden: { opacity: 0 },
   visible: (i: number) => ({
@@ -435,4 +439,40 @@ export const mobileItemVariants = {
 export const dayCellVariants = {
   hidden: { opacity: 0, scale: 0.92 },
   visible: { opacity: 1, scale: 1, transition: { ease } },
+};
+
+// ─── Command palette ──────────────────────────────────────────────────────────
+
+export const commandPaletteBackdropVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { ease } },
+  exit: { opacity: 0, transition: { duration: 0.15 } },
+};
+
+export const commandPaletteVariants = {
+  hidden: { opacity: 0, scale: 0.96, y: -12, filter: "blur(8px)" },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: { ease },
+  },
+  exit: {
+    opacity: 0,
+    scale: 0.96,
+    y: -8,
+    filter: "blur(4px)",
+    transition: { duration: 0.15 },
+  },
+};
+
+export const commandPaletteGroupVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.04 } },
+};
+
+export const commandPaletteItemVariants = {
+  hidden: { opacity: 0, x: -8 },
+  visible: { opacity: 1, x: 0, transition: { ease } },
 };

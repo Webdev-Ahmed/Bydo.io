@@ -7,7 +7,8 @@ import Divider from "./ui/Divider";
 import ThemeSelect from "./theme/ThemeSelect";
 import { AnimatePresence, motion } from "motion/react";
 import { useAuthStore } from "@/store/authStore";
-import { Menu, X } from "lucide-react";
+import { useCommandPalette } from "@/store/commandPaletteStore";
+import { Menu, X, Search, CommandIcon } from "lucide-react";
 import {
   navVariants,
   navLogoVariants,
@@ -20,10 +21,9 @@ import {
   mobileItemVariants,
 } from "@/lib/animations";
 
-// -- Component --
-
 const Navbar = () => {
   const { isAuthenticated, logout } = useAuthStore();
+  const { open: openPalette } = useCommandPalette();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleLogout = async () => {
@@ -41,18 +41,16 @@ const Navbar = () => {
         animate="visible"
         className="lg:max-w-5xl md:max-w-4xl p-3 rounded-full bg-text/5 mx-auto flex items-center justify-between pointer-events-auto backdrop-blur-xl shadow-md shadow-text/5 my-2 border border-text/5"
       >
-        {/* Logo */}
         <motion.div
           variants={navLogoVariants}
           className="flex items-center gap-3"
         >
-          <Logo />
+          <Logo rounded />
           <RouterLink to="/" onClick={closeMobile}>
             <h1 className="text-3xl font-bold font-serif">Bydo.io</h1>
           </RouterLink>
         </motion.div>
 
-        {/* Desktop nav */}
         <div className="hidden md:flex items-center justify-center">
           <ul className="flex gap-2">
             {NAV_LINKS.map((link, idx) => (
@@ -120,13 +118,34 @@ const Navbar = () => {
             <Divider orientation="vertical" />
           </motion.div>
 
-          <motion.div variants={navThemeVariants}>
+          <motion.div
+            variants={navThemeVariants}
+            className="flex items-center gap-2"
+          >
+            <motion.button
+              onClick={openPalette}
+              className="flex items-center justify-center gap-1.5 px-4 py-2.5 border border-text/10 rounded-full text-text/60 hover:text-text/70 hover:bg-text/8 transition-colors"
+              whileTap={{ scale: 0.93 }}
+              transition={{ duration: 0.12 }}
+              aria-label="Search"
+            >
+              <Search className="size-3.5" />
+              <span className="text-sm text-text/60">Search</span>
+              <kbd className="text-sm flex items-center gap-0.5 font-mono text-text/40 bg-text/5 px-1.5 rounded-lg border border-text/5">
+                <span>
+                  <CommandIcon className="size-3" />
+                </span>
+                <span>K</span>
+              </kbd>
+            </motion.button>
+
             <ThemeSelect />
           </motion.div>
         </div>
 
         <div className="flex md:hidden items-center gap-2">
           <ThemeSelect />
+
           <motion.button
             onClick={() => setMobileOpen((p) => !p)}
             className="p-2 rounded-full text-text/60 hover:text-text hover:bg-text/8 transition-colors"

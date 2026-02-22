@@ -12,6 +12,7 @@ interface TodoGroupProps {
   label: string;
   todos: (Todo & { dueDate?: string | Date | null; note?: string | null })[];
   groupIdx: number;
+  highlightId?: string | null;
   editingId: string | null;
   editingText: string;
   onStartEdit: (id: string, text: string) => void;
@@ -27,6 +28,7 @@ export const TodoGroup = ({
   label,
   todos,
   groupIdx,
+  highlightId,
   editingId,
   editingText,
   onStartEdit,
@@ -64,6 +66,7 @@ export const TodoGroup = ({
               todo={todo}
               isEditing={editingId === todo.id}
               editingText={editingText}
+              isHighlighted={highlightId === todo.id}
               onStartEdit={onStartEdit}
               onUpdate={onUpdate}
               onUpdateField={onUpdateField}

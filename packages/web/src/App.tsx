@@ -19,6 +19,7 @@ import RequireAdmin from "./components/auth/RequireAdmin";
 import AdminPage from "./pages/admin/AdminPage";
 import AdminUserPage from "./pages/admin/AdminUserPage";
 import CalendarPage from "./pages/CalenderPage";
+import { CommandPalette } from "./components/CommandPalette";
 
 const App = () => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -26,6 +27,8 @@ const App = () => {
   return (
     <Router>
       <Navbar />
+      <CommandPalette />
+
       <Routes>
         <Route path="/" element={<Home />} />
         <Route

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { formatDate, isPast, isToday } from "date-fns";
 import { motion, AnimatePresence } from "motion/react";
 import { useSortable } from "@dnd-kit/sortable";
@@ -27,6 +27,7 @@ interface TodoItemProps {
   todo: Todo & { dueDate?: string | Date | null; note?: string | null };
   isEditing: boolean;
   editingText: string;
+  isHighlighted?: boolean;
   onStartEdit: (id: string, text: string) => void;
   onUpdate: (id: string) => void;
   onUpdateField: (id: string, data: Record<string, unknown>) => Promise<void>;
@@ -40,6 +41,7 @@ export const TodoItem = ({
   todo,
   isEditing,
   editingText,
+  isHighlighted = false,
   onStartEdit,
   onUpdate,
   onUpdateField,
@@ -50,7 +52,9 @@ export const TodoItem = ({
 }: TodoItemProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [noteValue, setNoteValue] = useState(todo.note ?? "");
+  const [showHighlight, setShowHighlight] = useState(false);
 
+  const itemRef = useRef<HTMLLIElement>(null);
   const dueDateValue = toDateStr(todo.dueDate);
 
   const {
@@ -62,12 +66,30 @@ export const TodoItem = ({
     isDragging,
   } = useSortable({ id: todo.id });
 
+  // Merge sortable ref with our own itemRef
+  const setRefs = (el: HTMLLIElement | null) => {
+    (itemRef as React.MutableRefObject<HTMLLIElement | null>).current = el;
+    setNodeRef(el);
+  };
+
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.4 : 1,
     zIndex: isDragging ? 10 : undefined,
   };
+
+  // Highlight: scroll into view then flash ring, then fade out after 2s
+  useEffect(() => {
+    if (!isHighlighted) return;
+    const scrollTimer = setTimeout(() => {
+      itemRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      setShowHighlight(true);
+      const fadeTimer = setTimeout(() => setShowHighlight(false), 2000);
+      return () => clearTimeout(fadeTimer);
+    }, 300);
+    return () => clearTimeout(scrollTimer);
+  }, [isHighlighted]);
 
   const dueDate = todo.dueDate ? new Date(todo.dueDate).toISOString() : null;
   const isOverdue =
@@ -88,11 +110,11 @@ export const TodoItem = ({
 
   return (
     <motion.li
-      ref={setNodeRef}
+      ref={setRefs}
       style={style}
-      className={`flex flex-col rounded-xl sm:rounded-2xl px-3 sm:px-4 py-2.5 sm:py-3 transition-colors ${
+      className={`flex flex-col rounded-xl sm:rounded-2xl px-3 sm:px-4 py-2.5 sm:py-3 transition-all duration-500 ${
         isEditing ? "bg-text/4" : "hover:bg-text/3"
-      }`}
+      } ${showHighlight ? "ring-2 ring-primary/50 ring-offset-2 ring-offset-background bg-primary/3" : ""}`}
       variants={todoItemVariants}
       initial="hidden"
       animate="visible"

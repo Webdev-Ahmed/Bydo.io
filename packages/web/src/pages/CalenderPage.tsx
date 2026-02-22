@@ -95,7 +95,6 @@ const DayCell = ({
   return (
     <motion.button
       onClick={onClick}
-      // ── Fix: variants prop is required for parent staggerChildren to work ──
       variants={dayCellVariants}
       className={`relative flex flex-col items-start rounded-xl p-1.5 sm:p-2 text-left min-h-18 sm:min-h-22.5 transition-colors border ${
         isSelected
@@ -110,7 +109,6 @@ const DayCell = ({
       whileTap={inMonth ? { scale: 0.98 } : {}}
       transition={{ duration: 0.12 }}
     >
-      {/* Day number */}
       <div className="flex items-center justify-between w-full mb-1">
         <span
           className={`text-xs font-medium w-5 h-5 flex items-center justify-center rounded-full ${
@@ -128,7 +126,6 @@ const DayCell = ({
         )}
       </div>
 
-      {/* Todo chips */}
       {inMonth && (
         <div className="flex flex-col gap-0.5 w-full">
           {todos.slice(0, MAX_VISIBLE).map((todo) => (
@@ -159,7 +156,6 @@ const DayPanel = ({
   const activeTodos = todos.filter((t) => !t.done);
   const completedTodos = todos.filter((t) => t.done);
 
-  // Track which todo's note is expanded
   const [expandedNote, setExpandedNote] = useState<string | null>(null);
 
   return (
