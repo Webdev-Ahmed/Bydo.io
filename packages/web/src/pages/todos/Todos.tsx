@@ -12,9 +12,10 @@ import {
   useSensor,
   useSensors,
   type DragEndEvent,
+  type DragStartEvent,
+  DragOverlay,
 } from "@dnd-kit/core";
 import { arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
-
 import {
   Button,
   Layout,
@@ -23,8 +24,10 @@ import {
   TodoGroup,
   CalendarPicker,
   UndoToast,
+  TodoItem,
 } from "@/components/";
 import { useTodoStore } from "@/store/todoStore";
+import { useKeybindings } from "@/hooks/useKeybinding";
 import {
   todosHeaderVariants,
   todosFormVariants,
@@ -36,6 +39,9 @@ import {
 import { getDateGroup, toDateStr, DATE_GROUP_ORDER } from "@/lib/todos";
 import type { Filter } from "@/types";
 
+const TEMP_PREFIX = "__temp__";
+const tempId = () => `${TEMP_PREFIX}${Date.now()}`;
+
 const Todos = () => {
   const {
     fetchTodos,
@@ -46,12 +52,31 @@ const Todos = () => {
     toggleTodo,
     isLoading,
   } = useTodoStore();
-
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [highlightId, setHighlightId] = useState<string | null>(() =>
     searchParams.get("highlight"),
   );
+  const [newTodo, setNewTodo] = useState("");
+  const [newDueDate, setNewDueDate] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingText, setEditingText] = useState("");
+  const [filter, setFilter] = useState<Filter>("all");
+  const [localTodos, setLocalTodos] = useState<Todo[]>([]);
+  const [deletedTodo, setDeletedTodo] = useState<Todo | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
+
+  const inputRef = useRef<HTMLInputElement>(null);
+  const undoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const idRemapRef = useRef<Map<string, string>>(new Map());
+  const initialized = useRef(false);
+
+  const now = new Date();
+  const dayName = formatDate(now, "EEEE");
+  const dayDate = formatDate(now, "do MMMM");
+
+  const serverId = (localId: string) =>
+    idRemapRef.current.get(localId) ?? localId;
 
   useEffect(() => {
     if (!highlightId) return;
@@ -63,27 +88,16 @@ const Todos = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const now = new Date();
-  const dayName = formatDate(now, "EEEE");
-  const dayDate = formatDate(now, "do MMMM");
-
-  const [newTodo, setNewTodo] = useState("");
-  const [newDueDate, setNewDueDate] = useState("");
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editingText, setEditingText] = useState("");
-  const [filter, setFilter] = useState<Filter>("all");
-  const [localTodos, setLocalTodos] = useState<Todo[]>([]);
-  const [deletedTodo, setDeletedTodo] = useState<Todo | null>(null);
-
-  const undoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    setLocalTodos(todos);
-  }, [todos]);
   useEffect(() => {
     fetchTodos();
   }, [fetchTodos]);
+
+  useEffect(() => {
+    if (!initialized.current && todos.length > 0) {
+      initialized.current = true;
+      setLocalTodos(todos);
+    }
+  }, [todos]);
 
   const handleCancelEdit = useCallback(() => {
     setEditingId(null);
@@ -93,6 +107,8 @@ const Todos = () => {
   const handleUndoDelete = useCallback(async () => {
     if (!deletedTodo) return;
     if (undoTimerRef.current) clearTimeout(undoTimerRef.current);
+    setLocalTodos((prev) => [...prev, deletedTodo]);
+    setDeletedTodo(null);
     try {
       await createTodo({
         text: deletedTodo.text,
@@ -100,31 +116,30 @@ const Todos = () => {
           ? { dueDate: toDateStr(deletedTodo.dueDate) }
           : {}),
       });
-    } catch (err) {
-      console.error("[undo delete failed]", err);
+      const real = useTodoStore.getState().todos.at(-1);
+      if (real) idRemapRef.current.set(deletedTodo.id, real.id);
+    } catch {
+      setLocalTodos((prev) => prev.filter((t) => t.id !== deletedTodo.id));
     }
-    setDeletedTodo(null);
   }, [deletedTodo, createTodo]);
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (
-        e.key === "/" &&
-        document.activeElement?.tagName !== "INPUT" &&
-        document.activeElement?.tagName !== "TEXTAREA"
-      ) {
-        e.preventDefault();
-        inputRef.current?.focus();
-      }
-      if (e.key === "Escape" && editingId) handleCancelEdit();
-      if ((e.ctrlKey || e.metaKey) && e.key === "z" && deletedTodo) {
-        e.preventDefault();
-        handleUndoDelete();
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [editingId, deletedTodo, handleCancelEdit, handleUndoDelete]);
+  useKeybindings([
+    ["/", () => inputRef.current?.focus(), { ignoreWhenTyping: true }],
+    [
+      "escape",
+      () => {
+        if (editingId) handleCancelEdit();
+      },
+      { preventDefault: false, enabled: !!editingId },
+    ],
+    [
+      "mod+z",
+      () => {
+        if (deletedTodo) handleUndoDelete();
+      },
+      { enabled: !!deletedTodo },
+    ],
+  ]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -133,7 +148,11 @@ const Todos = () => {
     }),
   );
 
+  const handleDragStart = (event: DragStartEvent) =>
+    setActiveId(event.active.id as string);
+
   const handleDragEnd = (event: DragEndEvent) => {
+    setActiveId(null);
     const { active, over } = event;
     if (!over || active.id === over.id) return;
     setLocalTodos((prev) => {
@@ -147,15 +166,38 @@ const Todos = () => {
     e?.preventDefault();
     const text = newTodo.trim();
     if (!text) return;
+
+    const tid = tempId();
+    const optimistic: Todo = {
+      id: tid,
+      text,
+      done: false,
+      note: null,
+      userId: null,
+      dueDate: newDueDate ? new Date(newDueDate).toISOString() : undefined,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    setLocalTodos((prev) => [...prev, optimistic]);
+    setNewTodo("");
+    setNewDueDate("");
+
     try {
       await createTodo({
         text,
-        ...(newDueDate ? { dueDate: new Date(newDueDate).toISOString() } : {}),
+        ...(optimistic.dueDate ? { dueDate: optimistic.dueDate } : {}),
       });
-      setNewTodo("");
-      setNewDueDate("");
-    } catch (err) {
-      console.error("[createTodo failed]", err);
+      const real = useTodoStore.getState().todos.at(-1);
+      if (real && !real.id.startsWith(TEMP_PREFIX)) {
+        idRemapRef.current.set(tid, real.id);
+        setLocalTodos((prev) =>
+          prev.map((t) => (t.id === tid ? { ...real, id: tid } : t)),
+        );
+      }
+    } catch {
+      setLocalTodos((prev) => prev.filter((t) => t.id !== tid));
+      setNewTodo(text);
     }
   };
 
@@ -171,69 +213,104 @@ const Todos = () => {
       setEditingText("");
       return;
     }
+    const prev = localTodos.find((t) => t.id === id);
+    setLocalTodos((all) => all.map((t) => (t.id === id ? { ...t, text } : t)));
+    setEditingId(null);
+    setEditingText("");
     try {
-      await updateTodo(id, { text });
-      setEditingId(null);
-      setEditingText("");
-    } catch (err) {
-      console.error("[updateTodo failed]", err);
+      await updateTodo(serverId(id), { text });
+    } catch {
+      if (prev)
+        setLocalTodos((all) => all.map((t) => (t.id === id ? prev : t)));
     }
   };
 
   const handleUpdateField = useCallback(
     async (id: string, data: Record<string, unknown>) => {
+      const prev = localTodos.find((t) => t.id === id);
+      setLocalTodos((all) =>
+        all.map((t) => (t.id === id ? { ...t, ...data } : t)),
+      );
       try {
-        await updateTodo(id, data as UpdateTodoInput);
-      } catch (err) {
-        console.error("[updateTodo field failed]", err);
+        await updateTodo(serverId(id), data as UpdateTodoInput);
+      } catch {
+        if (prev)
+          setLocalTodos((all) => all.map((t) => (t.id === id ? prev : t)));
       }
     },
-    [updateTodo],
+    [localTodos, updateTodo],
   );
 
   const handleDelete = async (id: string) => {
     if (editingId === id) handleCancelEdit();
     const todo = localTodos.find((t) => t.id === id);
+    setLocalTodos((prev) => prev.filter((t) => t.id !== id));
     try {
-      await deleteTodo(id);
+      await deleteTodo(serverId(id));
+      idRemapRef.current.delete(id);
       if (todo) {
         setDeletedTodo(todo);
         if (undoTimerRef.current) clearTimeout(undoTimerRef.current);
         undoTimerRef.current = setTimeout(() => setDeletedTodo(null), 5000);
       }
-    } catch (err) {
-      console.error("[deleteTodo failed]", err);
+    } catch {
+      if (todo) setLocalTodos((prev) => [...prev, todo]);
     }
   };
 
   const handleToggle = async (id: string) => {
+    const todo = localTodos.find((t) => t.id === id);
+    if (!todo) return;
+    setLocalTodos((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, done: !t.done } : t)),
+    );
     try {
-      await toggleTodo(id);
-    } catch (err) {
-      console.error("[toggleTodo failed]", err);
+      await toggleTodo(serverId(id));
+    } catch {
+      setLocalTodos((prev) =>
+        prev.map((t) => (t.id === id ? { ...t, done: todo.done } : t)),
+      );
     }
   };
 
   const handleCheckAll = async () => {
-    const undoneTodos = localTodos.filter((t) => !t.done);
-    await Promise.all(undoneTodos.map((t) => toggleTodo(t.id)));
+    const undone = localTodos.filter((t) => !t.done);
+    setLocalTodos((prev) => prev.map((t) => ({ ...t, done: true })));
+    try {
+      await Promise.all(undone.map((t) => toggleTodo(serverId(t.id))));
+    } catch {
+      setLocalTodos((prev) =>
+        prev.map((t) =>
+          undone.find((u) => u.id === t.id) ? { ...t, done: false } : t,
+        ),
+      );
+    }
   };
 
   const handleDeleteCompleted = async () => {
     const completed = localTodos.filter((t) => t.done);
-    await Promise.all(completed.map((t) => deleteTodo(t.id)));
+    setLocalTodos((prev) => prev.filter((t) => !t.done));
+    try {
+      await Promise.all(completed.map((t) => deleteTodo(serverId(t.id))));
+    } catch {
+      setLocalTodos((prev) => [...prev, ...completed]);
+    }
   };
 
   const hasCompleted = localTodos.some((t) => t.done);
   const allDone = localTodos.length > 0 && localTodos.every((t) => t.done);
+  const completedCount = localTodos.filter((t) => t.done).length;
+  const totalCount = localTodos.length;
 
   const filteredTodos = useMemo(
     () =>
-      localTodos.filter((todo) => {
-        if (filter === "active") return !todo.done;
-        if (filter === "completed") return !!todo.done;
-        return true;
-      }),
+      localTodos.filter((t) =>
+        filter === "active"
+          ? !t.done
+          : filter === "completed"
+            ? !!t.done
+            : true,
+      ),
     [localTodos, filter],
   );
 
@@ -248,9 +325,6 @@ const Todos = () => {
     }
     return groups;
   }, [filteredTodos]);
-
-  const completedCount = localTodos.filter((t) => t.done).length;
-  const totalCount = localTodos.length;
 
   return (
     <Layout>
@@ -425,6 +499,7 @@ const Todos = () => {
                 <DndContext
                   sensors={sensors}
                   collisionDetection={closestCenter}
+                  onDragStart={handleDragStart}
                   onDragEnd={handleDragEnd}
                 >
                   {DATE_GROUP_ORDER.filter((g) => groupedTodos[g]?.length).map(
@@ -447,6 +522,34 @@ const Todos = () => {
                       />
                     ),
                   )}
+
+                  <DragOverlay
+                    dropAnimation={{ duration: 180, easing: "ease" }}
+                  >
+                    {activeId &&
+                      (() => {
+                        const activeTodo = localTodos.find(
+                          (t) => t.id === activeId,
+                        );
+                        if (!activeTodo) return null;
+                        return (
+                          <div className="rotate-1 scale-[1.02] shadow-xl shadow-text/10 rounded-xl sm:rounded-2xl border border-primary/20 bg-background/90 backdrop-blur-sm opacity-95">
+                            <TodoItem
+                              todo={activeTodo}
+                              isEditing={false}
+                              editingText=""
+                              onStartEdit={() => {}}
+                              onUpdate={() => {}}
+                              onUpdateField={async () => {}}
+                              onCancelEdit={() => {}}
+                              onDelete={() => {}}
+                              onToggle={() => {}}
+                              onEditingTextChange={() => {}}
+                            />
+                          </div>
+                        );
+                      })()}
+                  </DragOverlay>
                 </DndContext>
               </motion.div>
             )}

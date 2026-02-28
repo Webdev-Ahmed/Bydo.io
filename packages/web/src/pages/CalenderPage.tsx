@@ -22,7 +22,6 @@ import {
   CheckSquare,
   FileText,
 } from "lucide-react";
-
 import {
   ease,
   fadeUpVariants,
@@ -31,13 +30,11 @@ import {
 } from "@/lib/animations";
 import { Layout } from "@/components";
 import { useTodoStore } from "@/store/todoStore";
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+import { useKeybindings } from "@/hooks/useKeybinding";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-const getDueTodosForDay = (todos: Todo[], day: Date) =>
-  todos.filter((t) => t.dueDate && isSameDay(new Date(t.dueDate), day));
+const MAX_CHIPS = 2;
 
 const isTodoOverdue = (todo: Todo) =>
   !!todo.dueDate &&
@@ -45,20 +42,69 @@ const isTodoOverdue = (todo: Todo) =>
   isPast(new Date(todo.dueDate)) &&
   !isToday(new Date(todo.dueDate));
 
-// ─── Todo chip rendered inside a calendar cell ────────────────────────────────
+const getDueTodosForDay = (todos: Todo[], day: Date) =>
+  todos.filter((t) => t.dueDate && isSameDay(new Date(t.dueDate), day));
+
+const panelListVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.07, delayChildren: 0.15 } },
+};
+
+const panelItemVariants = {
+  hidden: { opacity: 0, x: -12, filter: "blur(4px)" },
+  visible: { opacity: 1, x: 0, filter: "blur(0px)", transition: { ease } },
+};
+
+const monthGridVariants = {
+  hidden: (d: number) => ({
+    opacity: 0,
+    x: d > 0 ? 30 : -30,
+    filter: "blur(6px)",
+  }),
+  visible: {
+    opacity: 1,
+    x: 0,
+    filter: "blur(0px)",
+    transition: {
+      duration: 0.28,
+      ease,
+      staggerChildren: 0.006,
+      delayChildren: 0.05,
+    },
+  },
+  exit: (d: number) => ({
+    opacity: 0,
+    x: d > 0 ? -30 : 30,
+    filter: "blur(6px)",
+    transition: { duration: 0.2 },
+  }),
+};
+
+const monthLabelVariants = {
+  hidden: (d: number) => ({
+    opacity: 0,
+    x: d > 0 ? 24 : -24,
+    filter: "blur(4px)",
+  }),
+  visible: {
+    opacity: 1,
+    x: 0,
+    filter: "blur(0px)",
+    transition: { duration: 0.28, ease },
+  },
+  exit: (d: number) => ({
+    opacity: 0,
+    x: d > 0 ? -24 : 24,
+    filter: "blur(4px)",
+    transition: { duration: 0.18 },
+  }),
+};
 
 const TodoChip = ({ todo }: { todo: Todo }) => {
   const isOverdue = isTodoOverdue(todo);
-
   return (
     <div
-      className={`flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] truncate leading-tight ${
-        todo.done
-          ? "bg-primary/8 text-primary/50 line-through"
-          : isOverdue
-            ? "bg-rose-500/10 text-rose-500/80"
-            : "bg-primary/10 text-primary/80"
-      }`}
+      className={`flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] truncate leading-tight ${todo.done ? "bg-primary/8 text-primary/50 line-through" : isOverdue ? "bg-rose-500/10 text-rose-500/80" : "bg-primary/10 text-primary/80"}`}
     >
       {todo.done ? (
         <CheckSquare className="size-2 shrink-0" />
@@ -71,8 +117,6 @@ const TodoChip = ({ todo }: { todo: Todo }) => {
     </div>
   );
 };
-
-// ─── Day cell ─────────────────────────────────────────────────────────────────
 
 const DayCell = ({
   day,
@@ -88,37 +132,22 @@ const DayCell = ({
   onClick: () => void;
 }) => {
   const inMonth = isSameMonth(day, viewDate);
-  const today = isToday(day);
+  const today = isToday(day) && inMonth;
   const hasOverdue = todos.some(isTodoOverdue);
-  const MAX_VISIBLE = 2;
-  const overflow = todos.length - MAX_VISIBLE;
+  const overflow = todos.length - MAX_CHIPS;
 
   return (
     <motion.button
       onClick={onClick}
       variants={dayCellVariants}
-      className={`relative flex flex-col items-start rounded-xl p-1.5 sm:p-2 text-left min-h-18 sm:min-h-22.5 transition-colors border ${
-        isSelected
-          ? "border-primary/30 bg-primary/5"
-          : today
-            ? "border-primary/20 bg-primary/3"
-            : inMonth
-              ? "border-text/5 bg-transparent hover:bg-text/2 hover:border-text/10"
-              : "border-transparent bg-transparent"
-      }`}
+      className={`relative flex flex-col items-start rounded-xl p-1.5 sm:p-2 text-left min-h-18 sm:min-h-22.5 transition-colors border ${isSelected ? "border-primary/30 bg-primary/5" : today ? "border-primary/20 bg-primary/3" : inMonth ? "border-text/5 bg-transparent hover:bg-text/2 hover:border-text/10" : "border-transparent bg-transparent"}`}
       whileHover={inMonth && !isSelected ? { scale: 1.01 } : {}}
       whileTap={inMonth ? { scale: 0.98 } : {}}
       transition={{ duration: 0.12 }}
     >
       <div className="flex items-center justify-between w-full mb-1">
         <span
-          className={`text-xs font-medium w-5 h-5 flex items-center justify-center rounded-full ${
-            today
-              ? "bg-primary text-primary-foreground font-bold"
-              : inMonth
-                ? "text-text/70"
-                : "text-text/20"
-          }`}
+          className={`text-xs font-medium w-5 h-5 flex items-center justify-center rounded-full ${today ? "bg-primary text-primary-foreground font-bold" : inMonth ? "text-text/70" : "text-text/20"}`}
         >
           {format(day, "d")}
         </span>
@@ -126,10 +155,9 @@ const DayCell = ({
           <span className="size-1.5 rounded-full bg-rose-500/60 shrink-0" />
         )}
       </div>
-
       {inMonth && (
         <div className="flex flex-col gap-0.5 w-full">
-          {todos.slice(0, MAX_VISIBLE).map((todo) => (
+          {todos.slice(0, MAX_CHIPS).map((todo) => (
             <TodoChip key={todo.id} todo={todo} />
           ))}
           {overflow > 0 && (
@@ -143,8 +171,6 @@ const DayCell = ({
   );
 };
 
-// ─── Selected day panel ───────────────────────────────────────────────────────
-
 const DayPanel = ({
   day,
   todos,
@@ -154,22 +180,28 @@ const DayPanel = ({
   todos: Todo[];
   onClose: () => void;
 }) => {
+  const [expandedNote, setExpandedNote] = useState<string | null>(null);
   const activeTodos = todos.filter((t) => !t.done);
   const completedTodos = todos.filter((t) => t.done);
-
-  const [expandedNote, setExpandedNote] = useState<string | null>(null);
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 10 }}
+      exit={{ opacity: 0, y: 10, transition: { duration: 0.15 } }}
       transition={{ duration: 0.25, ease }}
       className="rounded-2xl border border-text/8 bg-text/2 overflow-hidden"
     >
       <div className="flex items-center justify-between px-5 py-4 border-b border-text/6">
         <div>
-          <p className="text-xs text-text/35 mb-0.5">{format(day, "EEEE")}</p>
+          <div className="flex items-center gap-2 mb-0.5">
+            <p className="text-xs text-text/35">{format(day, "EEEE")}</p>
+            {isToday(day) && (
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary/70 border border-primary/20">
+                Today
+              </span>
+            )}
+          </div>
           <h3 className="text-xl font-semibold">
             <span className="font-serif italic text-primary">
               {format(day, "do")}
@@ -187,39 +219,45 @@ const DayPanel = ({
 
       <div className="p-5">
         {todos.length === 0 ? (
-          <p className="text-sm text-text/25 italic text-center py-4">
+          <motion.p
+            variants={fadeUpVariants}
+            initial="hidden"
+            animate="visible"
+            className="text-sm text-text/25 italic text-center py-4"
+          >
             No todos due on this day.
-          </p>
+          </motion.p>
         ) : (
           <div className="flex flex-col gap-5">
             {activeTodos.length > 0 && (
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-widest text-text/30 font-serif mb-2">
+                <motion.p
+                  variants={fadeUpVariants}
+                  initial="hidden"
+                  animate="visible"
+                  className="text-[10px] font-semibold uppercase tracking-widest text-text/30 font-serif mb-2"
+                >
                   Due · {activeTodos.length}
-                </p>
-                <div className="flex flex-col gap-2">
+                </motion.p>
+                <motion.div
+                  className="flex flex-col gap-2"
+                  variants={panelListVariants}
+                  initial="hidden"
+                  animate="visible"
+                >
                   {activeTodos.map((todo) => {
                     const overdue = isTodoOverdue(todo);
                     const note = (todo as Todo & { note?: string | null }).note;
-                    const hasNote = !!note;
                     const noteOpen = expandedNote === todo.id;
-
                     return (
-                      <div
+                      <motion.div
                         key={todo.id}
-                        className={`rounded-xl border overflow-hidden ${
-                          overdue
-                            ? "border-rose-500/15 bg-rose-500/3"
-                            : "border-text/6 bg-text/1"
-                        }`}
+                        variants={panelItemVariants}
+                        className={`rounded-xl border overflow-hidden ${overdue ? "border-rose-500/15 bg-rose-500/3" : "border-text/6 bg-text/1"}`}
                       >
                         <div className="flex items-start gap-3 px-3 py-2.5">
                           <div
-                            className={`mt-1 size-2.5 rounded-full border shrink-0 ${
-                              overdue
-                                ? "border-rose-500/50"
-                                : "border-primary/50"
-                            }`}
+                            className={`mt-1 size-2.5 rounded-full border shrink-0 ${overdue ? "border-rose-500/50" : "border-primary/50"}`}
                           />
                           <div className="flex-1 min-w-0">
                             <p className="text-sm text-text/80">{todo.text}</p>
@@ -230,24 +268,19 @@ const DayPanel = ({
                               </p>
                             )}
                           </div>
-                          {hasNote && (
+                          {note && (
                             <button
                               onClick={() =>
                                 setExpandedNote(noteOpen ? null : todo.id)
                               }
-                              className={`shrink-0 p-1 rounded-md transition-colors ${
-                                noteOpen
-                                  ? "text-primary/70 bg-primary/8"
-                                  : "text-text/25 hover:text-text/60 hover:bg-text/8"
-                              }`}
+                              className={`shrink-0 p-1 rounded-md transition-colors ${noteOpen ? "text-primary/70 bg-primary/8" : "text-text/25 hover:text-text/60 hover:bg-text/8"}`}
                             >
                               <FileText className="size-3" />
                             </button>
                           )}
                         </div>
-
                         <AnimatePresence initial={false}>
-                          {hasNote && noteOpen && (
+                          {note && noteOpen && (
                             <motion.div
                               initial={{ height: 0, opacity: 0 }}
                               animate={{ height: "auto", opacity: 1 }}
@@ -264,31 +297,42 @@ const DayPanel = ({
                             </motion.div>
                           )}
                         </AnimatePresence>
-                      </div>
+                      </motion.div>
                     );
                   })}
-                </div>
+                </motion.div>
               </div>
             )}
 
             {completedTodos.length > 0 && (
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-widest text-text/30 font-serif mb-2">
+                <motion.p
+                  variants={fadeUpVariants}
+                  initial="hidden"
+                  animate="visible"
+                  className="text-[10px] font-semibold uppercase tracking-widest text-text/30 font-serif mb-2"
+                >
                   Completed · {completedTodos.length}
-                </p>
-                <div className="flex flex-col gap-2">
+                </motion.p>
+                <motion.div
+                  className="flex flex-col gap-2"
+                  variants={panelListVariants}
+                  initial="hidden"
+                  animate="visible"
+                >
                   {completedTodos.map((todo) => (
-                    <div
+                    <motion.div
                       key={todo.id}
+                      variants={panelItemVariants}
                       className="flex items-start gap-3 px-3 py-2.5 rounded-xl border border-text/6 bg-text/1"
                     >
                       <CheckSquare className="mt-0.5 size-2.5 text-primary/40 shrink-0" />
                       <p className="text-sm text-text/35 line-through">
                         {todo.text}
                       </p>
-                    </div>
+                    </motion.div>
                   ))}
-                </div>
+                </motion.div>
               </div>
             )}
           </div>
@@ -298,30 +342,35 @@ const DayPanel = ({
   );
 };
 
-// ─── Legend ───────────────────────────────────────────────────────────────────
-
 const Legend = () => (
   <div className="flex items-center gap-4 flex-wrap px-4 pb-3 pt-2 border-t border-text/4">
-    <div className="flex items-center gap-1.5">
-      <div className="size-1.5 rounded-full bg-primary/60" />
-      <span className="text-[10px] text-text/30">Active</span>
-    </div>
-    <div className="flex items-center gap-1.5">
-      <Clock className="size-2.5 text-rose-500/60" />
-      <span className="text-[10px] text-text/30">Overdue</span>
-    </div>
-    <div className="flex items-center gap-1.5">
-      <CheckSquare className="size-2.5 text-primary/40" />
-      <span className="text-[10px] text-text/30">Completed</span>
-    </div>
-    <div className="flex items-center gap-1.5">
-      <span className="size-1.5 rounded-full bg-rose-500/60 inline-block" />
-      <span className="text-[10px] text-text/30">Day has overdue</span>
-    </div>
+    {[
+      {
+        label: "Active",
+        icon: <div className="size-1.5 rounded-full bg-primary/60" />,
+      },
+      {
+        label: "Overdue",
+        icon: <Clock className="size-2.5 text-rose-500/60" />,
+      },
+      {
+        label: "Completed",
+        icon: <CheckSquare className="size-2.5 text-primary/40" />,
+      },
+      {
+        label: "Day has overdue",
+        icon: (
+          <span className="size-1.5 rounded-full bg-rose-500/60 inline-block" />
+        ),
+      },
+    ].map(({ label, icon }) => (
+      <div key={label} className="flex items-center gap-1.5">
+        {icon}
+        <span className="text-[10px] text-text/30">{label}</span>
+      </div>
+    ))}
   </div>
 );
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
 
 const CalendarPage = () => {
   const { todos, fetchTodos, isLoading } = useTodoStore();
@@ -335,34 +384,39 @@ const CalendarPage = () => {
 
   const duedTodos = useMemo(() => todos.filter((t) => !!t.dueDate), [todos]);
 
-  const days = useMemo(() => {
-    const monthStart = startOfMonth(viewDate);
-    const monthEnd = endOfMonth(viewDate);
-    return eachDayOfInterval({
-      start: startOfWeek(monthStart),
-      end: endOfWeek(monthEnd),
-    });
-  }, [viewDate]);
+  const days = useMemo(
+    () =>
+      eachDayOfInterval({
+        start: startOfWeek(startOfMonth(viewDate)),
+        end: endOfWeek(endOfMonth(viewDate)),
+      }),
+    [viewDate],
+  );
 
   const selectedDayTodos = useMemo(
     () => (selectedDay ? getDueTodosForDay(duedTodos, selectedDay) : []),
     [selectedDay, duedTodos],
   );
 
+  const monthTodos = useMemo(
+    () => duedTodos.filter((t) => isSameMonth(new Date(t.dueDate!), viewDate)),
+    [duedTodos, viewDate],
+  );
+
   const isCurrentMonth = isSameMonth(viewDate, new Date());
+  const doneCount = monthTodos.filter((t) => t.done).length;
+  const overdueCount = monthTodos.filter(isTodoOverdue).length;
 
   const goToPrev = useCallback(() => {
     setDirection(-1);
     setViewDate((d) => subMonths(d, 1));
     setSelectedDay(null);
   }, []);
-
   const goToNext = useCallback(() => {
     setDirection(1);
     setViewDate((d) => addMonths(d, 1));
     setSelectedDay(null);
   }, []);
-
   const goToToday = useCallback(() => {
     const now = new Date();
     setDirection(viewDate < now ? 1 : -1);
@@ -370,32 +424,21 @@ const CalendarPage = () => {
     setSelectedDay(now);
   }, [viewDate]);
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (
-        e.target instanceof HTMLInputElement ||
-        e.target instanceof HTMLTextAreaElement
-      )
-        return;
-      if (e.key === "ArrowLeft") goToPrev();
-      else if (e.key === "ArrowRight") goToNext();
-      else if (e.key === "Escape") setSelectedDay(null);
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [goToPrev, goToNext]);
+  useKeybindings([
+    ["arrowleft", goToPrev, { ignoreWhenTyping: true }],
+    ["arrowright", goToNext, { ignoreWhenTyping: true }],
+    ["t", goToToday, { ignoreWhenTyping: true }],
+    [
+      "escape",
+      () => setSelectedDay(null),
+      { enabled: !!selectedDay, preventDefault: false },
+    ],
+  ]);
 
   const handleDayClick = (day: Date) => {
     if (!isSameMonth(day, viewDate)) return;
     setSelectedDay((prev) => (prev && isSameDay(prev, day) ? null : day));
   };
-
-  const monthTodos = useMemo(
-    () => duedTodos.filter((t) => isSameMonth(new Date(t.dueDate!), viewDate)),
-    [duedTodos, viewDate],
-  );
-  const doneCount = monthTodos.filter((t) => t.done).length;
-  const overdueCount = monthTodos.filter(isTodoOverdue).length;
 
   return (
     <Layout>
@@ -417,7 +460,6 @@ const CalendarPage = () => {
                 <span className="text-text/80">dates.</span>
               </h1>
             </div>
-
             {!isLoading && (
               <div className="flex flex-col items-start sm:items-end gap-1">
                 <div className="flex items-center gap-3 text-xs text-text/40">
@@ -438,7 +480,8 @@ const CalendarPage = () => {
                   )}
                 </div>
                 <p className="text-[10px] text-text/20 hidden sm:block">
-                  ← → to navigate · click a day to expand · Esc to close
+                  ← → to navigate · T for today · click a day to expand · Esc to
+                  close
                 </p>
               </div>
             )}
@@ -468,25 +511,7 @@ const CalendarPage = () => {
                     <motion.h2
                       key={format(viewDate, "MMM-yyyy")}
                       custom={direction}
-                      variants={{
-                        hidden: (d: number) => ({
-                          opacity: 0,
-                          x: d > 0 ? 24 : -24,
-                          filter: "blur(4px)",
-                        }),
-                        visible: {
-                          opacity: 1,
-                          x: 0,
-                          filter: "blur(0px)",
-                          transition: { duration: 0.28, ease },
-                        },
-                        exit: (d: number) => ({
-                          opacity: 0,
-                          x: d > 0 ? -24 : 24,
-                          filter: "blur(4px)",
-                          transition: { duration: 0.18 },
-                        }),
-                      }}
+                      variants={monthLabelVariants}
                       initial="hidden"
                       animate="visible"
                       exit="exit"
@@ -499,10 +524,10 @@ const CalendarPage = () => {
                     </motion.h2>
                   </AnimatePresence>
                 </div>
-
                 <AnimatePresence>
                   {!isCurrentMonth && (
                     <motion.button
+                      key="today-btn"
                       onClick={goToToday}
                       initial={{ opacity: 0, scale: 0.8 }}
                       animate={{ opacity: 1, scale: 1 }}
@@ -510,7 +535,7 @@ const CalendarPage = () => {
                       transition={{ duration: 0.18, ease }}
                       className="text-[10px] font-semibold px-2.5 py-1 rounded-full border border-primary/25 bg-primary/8 text-primary/70 hover:bg-primary/15 hover:text-primary transition-colors"
                     >
-                      Today
+                      ← Back to today
                     </motion.button>
                   )}
                 </AnimatePresence>
@@ -542,51 +567,24 @@ const CalendarPage = () => {
                 <motion.div
                   key={format(viewDate, "MMM-yyyy")}
                   custom={direction}
-                  variants={{
-                    hidden: (d: number) => ({
-                      opacity: 0,
-                      x: d > 0 ? 30 : -30,
-                      filter: "blur(6px)",
-                    }),
-                    visible: {
-                      opacity: 1,
-                      x: 0,
-                      filter: "blur(0px)",
-                      transition: {
-                        duration: 0.28,
-                        ease,
-                        staggerChildren: 0.006,
-                        delayChildren: 0.05,
-                      },
-                    },
-                    exit: (d: number) => ({
-                      opacity: 0,
-                      x: d > 0 ? -30 : 30,
-                      filter: "blur(6px)",
-                      transition: { duration: 0.2 },
-                    }),
-                  }}
+                  variants={monthGridVariants}
                   initial="hidden"
                   animate="visible"
                   exit="exit"
                   className="grid grid-cols-7 gap-1 sm:gap-1.5"
                 >
-                  {days.map((day) => {
-                    const dayTodos = getDueTodosForDay(duedTodos, day);
-                    const isSelected = selectedDay
-                      ? isSameDay(day, selectedDay)
-                      : false;
-                    return (
-                      <DayCell
-                        key={day.toISOString()}
-                        day={day}
-                        viewDate={viewDate}
-                        todos={dayTodos}
-                        isSelected={isSelected}
-                        onClick={() => handleDayClick(day)}
-                      />
-                    );
-                  })}
+                  {days.map((day) => (
+                    <DayCell
+                      key={day.toISOString()}
+                      day={day}
+                      viewDate={viewDate}
+                      todos={getDueTodosForDay(duedTodos, day)}
+                      isSelected={
+                        selectedDay ? isSameDay(day, selectedDay) : false
+                      }
+                      onClick={() => handleDayClick(day)}
+                    />
+                  ))}
                 </motion.div>
               </AnimatePresence>
             </div>
@@ -594,7 +592,7 @@ const CalendarPage = () => {
             <Legend />
           </motion.div>
 
-          <AnimatePresence>
+          <AnimatePresence mode="wait">
             {selectedDay && (
               <DayPanel
                 key={selectedDay.toISOString()}

@@ -37,9 +37,10 @@ import UserAvatar from "./ui/UserAvatar";
 
 // components
 import CommandPalette from "./CommandPalette";
+import KeybindingCheatsheet from "./KeybindingCheatsheet";
+import Layout from "./Layout";
 import Navbar from "./Navbar";
 import Router from "./Router";
-import Layout from "./Layout";
 
 export {
   // components/auth
@@ -81,6 +82,7 @@ export {
 
   // components/
   CommandPalette,
+  KeybindingCheatsheet,
   Layout,
   Navbar,
   Router,

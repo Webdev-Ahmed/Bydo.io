@@ -23,6 +23,16 @@ interface TodoGroupProps {
   onEditingTextChange: (text: string) => void;
 }
 
+const groupContainerVariants = {
+  hidden: {},
+  visible: (groupIdx: number) => ({
+    transition: {
+      staggerChildren: 0.05,
+      delayChildren: groupIdx * 0.04,
+    },
+  }),
+};
+
 const TodoGroup = ({
   label,
   todos,
@@ -40,14 +50,10 @@ const TodoGroup = ({
 }: TodoGroupProps) => (
   <motion.div
     className="mb-10"
+    custom={groupIdx}
+    variants={groupContainerVariants}
     initial="hidden"
     animate="visible"
-    variants={{
-      hidden: {},
-      visible: {
-        transition: { staggerChildren: 0.06, delayChildren: groupIdx * 0.05 },
-      },
-    }}
   >
     <motion.div className="mb-3" variants={slideLeftVariants}>
       <SectionHeader label={label} count={todos.length} />
@@ -57,7 +63,7 @@ const TodoGroup = ({
       items={todos.map((t) => t.id)}
       strategy={verticalListSortingStrategy}
     >
-      <ul className="flex flex-col gap-1">
+      <ul className="flex flex-col gap-2">
         <AnimatePresence initial={false}>
           {todos.map((todo) => (
             <TodoItem

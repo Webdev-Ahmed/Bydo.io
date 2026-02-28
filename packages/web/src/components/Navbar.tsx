@@ -76,7 +76,7 @@ const Navbar = () => {
               >
                 <motion.li variants={navAuthItemVariants}>
                   <Link to="/user" outline variant="button">
-                    User
+                    Account
                   </Link>
                 </motion.li>
                 <motion.li variants={navAuthItemVariants}>
@@ -234,7 +234,7 @@ const Navbar = () => {
                         onClick={closeMobile}
                         className="flex w-full justify-start"
                       >
-                        User
+                        Account
                       </Link>
                     </motion.div>
                     <motion.div

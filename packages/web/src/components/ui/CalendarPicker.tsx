@@ -16,7 +16,7 @@ import {
 } from "date-fns";
 import { motion, AnimatePresence } from "motion/react";
 import { ChevronLeft, ChevronRight, CalendarDays, X } from "lucide-react";
-import { ease, calendarDropdownVariants } from "@/lib/animations";
+import { ease } from "@/lib/animations";
 
 interface CalendarPickerProps {
   value: string;
@@ -39,19 +39,44 @@ const CalendarPicker = ({
   const [viewDate, setViewDate] = useState(selectedDate ?? new Date());
   const [direction, setDirection] = useState(1);
   const [coords, setCoords] = useState({ top: 0, left: 0 });
+  const [flippedUp, setFlippedUp] = useState(false);
 
   const triggerRef = useRef<HTMLButtonElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  const updateCoords = () => {
+    if (!triggerRef.current) return;
+    const rect = triggerRef.current.getBoundingClientRect();
+    const dropdownWidth = 256;
+    const dropdownHeight = 320;
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+
+    const left =
+      rect.left + dropdownWidth > viewportWidth
+        ? viewportWidth - dropdownWidth - 8
+        : rect.left;
+
+    const spaceBelow = viewportHeight - rect.bottom;
+    const shouldFlip = spaceBelow < dropdownHeight;
+
+    const top = shouldFlip ? rect.top - (dropdownHeight - 30) : rect.bottom + 6;
+
+    setFlippedUp(shouldFlip);
+    setCoords({ top, left });
+  };
+
   const handleOpen = () => {
-    if (triggerRef.current) {
-      const rect = triggerRef.current.getBoundingClientRect();
-      setCoords({ top: rect.bottom + 8, left: rect.left });
-    }
-    if (value) {
-      setViewDate(new Date(value + "T00:00:00"));
-    }
+    updateCoords();
+    if (value) setViewDate(new Date(value + "T00:00:00"));
     setIsOpen((p) => !p);
+  };
+
+  const handleClear = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    onChange("");
+    setIsOpen(false);
   };
 
   useEffect(() => {
@@ -78,11 +103,19 @@ const CalendarPicker = ({
     return () => window.removeEventListener("keydown", handleKey);
   }, [isOpen]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleScroll = () => updateCoords();
+    window.addEventListener("scroll", handleScroll, true);
+    return () => window.removeEventListener("scroll", handleScroll, true);
+  }, [isOpen]);
+
   const monthStart = startOfMonth(viewDate);
   const monthEnd = endOfMonth(viewDate);
-  const gridStart = startOfWeek(monthStart);
-  const gridEnd = endOfWeek(monthEnd);
-  const days = eachDayOfInterval({ start: gridStart, end: gridEnd });
+  const days = eachDayOfInterval({
+    start: startOfWeek(monthStart),
+    end: endOfWeek(monthEnd),
+  });
 
   const goToPrev = () => {
     setDirection(-1);
@@ -100,11 +133,6 @@ const CalendarPicker = ({
     setIsOpen(false);
   };
 
-  const handleClear = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onChange("");
-  };
-
   const isDisabled = (day: Date) => disablePast && isPast(day) && !isToday(day);
 
   return (
@@ -113,31 +141,37 @@ const CalendarPicker = ({
         ref={triggerRef}
         type="button"
         onClick={handleOpen}
-        className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs transition-colors ${
+        className={`group flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs transition-all ${
           isOpen
-            ? "border-primary bg-primary/5 text-text"
-            : "border-text/15 bg-transparent text-text/60 hover:text-text hover:border-text/30"
+            ? "border-primary/50 bg-primary/6 text-text"
+            : selectedDate
+              ? "border-text/20 bg-text/3 text-text/70 hover:border-text/30 hover:text-text"
+              : "border-text/12 bg-transparent text-text/40 hover:border-text/25 hover:text-text/70"
         }`}
         whileTap={{ scale: 0.97 }}
         transition={{ duration: 0.1 }}
       >
-        <CalendarDays className="size-3.5 shrink-0" />
-        <span>
+        <CalendarDays className="size-3 shrink-0" />
+        <span className="leading-none">
           {selectedDate ? format(selectedDate, "do MMM, yyyy") : placeholder}
         </span>
 
         <AnimatePresence>
           {selectedDate && (
-            <motion.span
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.5 }}
+            <motion.button
+              type="button"
+              initial={{ opacity: 0, scale: 0.5, width: 0 }}
+              animate={{ opacity: 1, scale: 1, width: "auto" }}
+              exit={{ opacity: 0, scale: 0.5, width: 0 }}
               transition={{ duration: 0.15 }}
+              onMouseDown={(e) => e.stopPropagation()}
               onClick={handleClear}
-              className="ml-0.5 rounded-full hover:bg-text/10 p-0.5 text-text/40 hover:text-text transition-colors"
+              className="flex items-center justify-center rounded-full p-0.5 text-text/30 hover:text-text/70 hover:bg-text/10 transition-colors ml-0.5"
+              tabIndex={-1}
+              aria-label="Clear date"
             >
               <X className="size-2.5" />
-            </motion.span>
+            </motion.button>
           )}
         </AnimatePresence>
       </motion.button>
@@ -147,19 +181,32 @@ const CalendarPicker = ({
           <AnimatePresence>
             <motion.div
               ref={containerRef}
-              className="absolute z-999 w-64 rounded-2xl border border-text/10 bg-background shadow-xl overflow-hidden"
+              className="fixed z-9999 w-64 rounded-2xl border border-text/8 bg-background shadow-2xl shadow-text/8 overflow-hidden"
               style={{ top: coords.top, left: coords.left }}
-              variants={calendarDropdownVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
+              initial={{
+                opacity: 0,
+                y: flippedUp ? 8 : -8,
+                filter: "blur(6px)",
+              }}
+              animate={{
+                opacity: 1,
+                y: 0,
+                filter: "blur(0px)",
+                transition: { ease },
+              }}
+              exit={{
+                opacity: 0,
+                y: flippedUp ? 8 : -8,
+                filter: "blur(6px)",
+                transition: { duration: 0.18, ease: "easeIn" },
+              }}
             >
-              <div className="flex items-center justify-between px-4 py-3 border-b border-text/5">
+              <div className="flex items-center justify-between px-3 py-2.5 border-b border-text/5">
                 <motion.button
                   type="button"
                   onClick={goToPrev}
-                  className="p-1.5 rounded-lg hover:bg-text/10 text-text/50 hover:text-text transition-colors"
-                  whileTap={{ scale: 0.9 }}
+                  className="p-1.5 rounded-lg hover:bg-text/8 text-text/30 hover:text-text/70 transition-colors"
+                  whileTap={{ scale: 0.88 }}
                   transition={{ duration: 0.1 }}
                 >
                   <ChevronLeft className="size-3.5" />
@@ -171,15 +218,15 @@ const CalendarPicker = ({
                     initial={false}
                     custom={direction}
                   >
-                    <motion.span
+                    <motion.p
                       key={format(viewDate, "MMM-yyyy")}
-                      className="text-sm font-semibold"
+                      className="text-xs font-semibold text-text/80"
                       custom={direction}
                       variants={{
                         hidden: (d: number) => ({
                           opacity: 0,
-                          x: d > 0 ? 16 : -16,
-                          filter: "blur(4px)",
+                          x: d > 0 ? 14 : -14,
+                          filter: "blur(3px)",
                         }),
                         visible: {
                           opacity: 1,
@@ -189,43 +236,48 @@ const CalendarPicker = ({
                         },
                         exit: (d: number) => ({
                           opacity: 0,
-                          x: d > 0 ? -16 : 16,
-                          filter: "blur(4px)",
-                          transition: { duration: 0.15 },
+                          x: d > 0 ? -14 : 14,
+                          filter: "blur(3px)",
+                          transition: { duration: 0.13 },
                         }),
                       }}
                       initial="hidden"
                       animate="visible"
                       exit="exit"
                     >
-                      {format(viewDate, "MMMM yyyy")}
-                    </motion.span>
+                      <span className="font-serif italic text-primary">
+                        {format(viewDate, "MMMM")}
+                      </span>{" "}
+                      <span className="text-text/50 font-sans font-medium">
+                        {format(viewDate, "yyyy")}
+                      </span>
+                    </motion.p>
                   </AnimatePresence>
                 </div>
 
                 <motion.button
                   type="button"
                   onClick={goToNext}
-                  className="p-1.5 rounded-lg hover:bg-text/10 text-text/50 hover:text-text transition-colors"
-                  whileTap={{ scale: 0.9 }}
+                  className="p-1.5 rounded-lg hover:bg-text/8 text-text/30 hover:text-text/70 transition-colors"
+                  whileTap={{ scale: 0.88 }}
                   transition={{ duration: 0.1 }}
                 >
                   <ChevronRight className="size-3.5" />
                 </motion.button>
               </div>
 
-              <div className="grid grid-cols-7 px-3 pt-3 pb-1">
+              <div className="grid grid-cols-7 px-3 pt-2.5 pb-1">
                 {DAYS.map((d) => (
                   <div
                     key={d}
-                    className="text-center text-[10px] font-semibold text-text/25 pb-1"
+                    className="text-center text-[9px] font-semibold text-text/20 tracking-wide pb-1"
                   >
                     {d}
                   </div>
                 ))}
               </div>
 
-              <div className="overflow-hidden px-3 pb-3">
+              <div className="overflow-hidden px-3 pb-2">
                 <AnimatePresence mode="wait" initial={false} custom={direction}>
                   <motion.div
                     key={format(viewDate, "MMM-yyyy")}
@@ -234,23 +286,20 @@ const CalendarPicker = ({
                     variants={{
                       hidden: (d: number) => ({
                         opacity: 0,
-                        x: d > 0 ? 20 : -20,
+                        x: d > 0 ? 18 : -18,
                         filter: "blur(4px)",
                       }),
                       visible: {
                         opacity: 1,
                         x: 0,
                         filter: "blur(0px)",
-                        transition: {
-                          ease,
-                          staggerChildren: 0.015,
-                        },
+                        transition: { ease, staggerChildren: 0.012 },
                       },
                       exit: (d: number) => ({
                         opacity: 0,
-                        x: d > 0 ? -20 : 20,
+                        x: d > 0 ? -18 : 18,
                         filter: "blur(4px)",
-                        transition: { duration: 0.18 },
+                        transition: { duration: 0.15 },
                       }),
                     }}
                     initial="hidden"
@@ -262,7 +311,7 @@ const CalendarPicker = ({
                         ? isSameDay(day, selectedDate)
                         : false;
                       const isCurrent = isToday(day);
-                      const isCurrentMonth = isSameMonth(day, viewDate);
+                      const inMonth = isSameMonth(day, viewDate);
                       const disabled = isDisabled(day);
 
                       return (
@@ -271,30 +320,31 @@ const CalendarPicker = ({
                           type="button"
                           onClick={() => handleSelect(day)}
                           disabled={disabled}
-                          className={`
-                            relative aspect-square flex items-center justify-center rounded-full text-xs
-                            transition-colors
-                            ${!isCurrentMonth ? "text-text/15" : ""}
-                            ${disabled ? "cursor-not-allowed text-text/15" : "cursor-pointer"}
-                            ${
-                              isSelected
-                                ? "bg-primary text-primary-foreground font-semibold"
-                                : isCurrent && !isSelected
-                                  ? "border border-primary text-primary font-semibold"
-                                  : isCurrentMonth && !disabled
-                                    ? "hover:bg-text/10 text-text/80"
-                                    : ""
-                            }
-                          `}
                           variants={{
                             hidden: { opacity: 0 },
                             visible: { opacity: 1 },
                           }}
                           whileHover={
-                            !isSelected && !disabled ? { scale: 1.15 } : {}
+                            !isSelected && !disabled && inMonth
+                              ? { scale: 1.18 }
+                              : {}
                           }
-                          whileTap={!disabled ? { scale: 0.92 } : {}}
-                          transition={{ duration: 0.12 }}
+                          whileTap={!disabled ? { scale: 0.9 } : {}}
+                          transition={{ duration: 0.1 }}
+                          className={`
+                            aspect-square flex items-center justify-center rounded-full text-[11px] transition-colors
+                            ${!inMonth ? "text-text/12 pointer-events-none" : ""}
+                            ${disabled ? "cursor-not-allowed opacity-25" : "cursor-pointer"}
+                            ${
+                              isSelected
+                                ? "bg-primary text-white font-semibold shadow-sm shadow-primary/30"
+                                : isCurrent && inMonth
+                                  ? "border border-primary/50 text-primary font-semibold"
+                                  : inMonth && !disabled
+                                    ? "text-text/70 hover:bg-text/8"
+                                    : ""
+                            }
+                          `}
                         >
                           {format(day, "d")}
                         </motion.button>
@@ -304,34 +354,35 @@ const CalendarPicker = ({
                 </AnimatePresence>
               </div>
 
-              <div className="border-t border-text/5 px-4 py-2.5 flex items-center justify-between">
+              <div className="border-t border-text/5 px-3 py-2 flex items-center justify-between">
                 <motion.button
                   type="button"
-                  onClick={() => {
-                    const today = new Date();
-                    setViewDate(today);
-                    handleSelect(today);
-                  }}
-                  className="text-xs text-primary hover:opacity-70 transition-opacity font-medium"
-                  whileHover={{ x: 2 }}
-                  transition={{ duration: 0.15 }}
+                  onClick={() => handleSelect(new Date())}
+                  className="text-[11px] font-medium text-primary/70 hover:text-primary transition-colors px-2 py-1 rounded-lg hover:bg-primary/6"
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ duration: 0.1 }}
                 >
                   Today
                 </motion.button>
 
-                {selectedDate && (
-                  <motion.button
-                    type="button"
-                    onClick={handleClear}
-                    className="text-xs text-text/30 hover:text-rose-500 transition-colors"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    whileHover={{ x: -2 }}
-                    transition={{ duration: 0.15 }}
-                  >
-                    Clear
-                  </motion.button>
-                )}
+                <AnimatePresence>
+                  {selectedDate && (
+                    <motion.button
+                      type="button"
+                      initial={{ opacity: 0, x: 6 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 6 }}
+                      transition={{ duration: 0.15 }}
+                      onMouseDown={(e) => e.stopPropagation()}
+                      onClick={handleClear}
+                      className="text-[11px] text-text/25 hover:text-rose-500/70 transition-colors px-2 py-1 rounded-lg hover:bg-rose-500/5 flex items-center gap-1"
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <X className="size-2.5" />
+                      Clear
+                    </motion.button>
+                  )}
+                </AnimatePresence>
               </div>
             </motion.div>
           </AnimatePresence>,

@@ -5,6 +5,7 @@ import {
   CommandPalette,
   ProtectedRoute,
   RequireAdmin,
+  KeybindingCheatsheet,
 } from "@/components";
 import { useAuthStore } from "@/store/authStore";
 
@@ -27,6 +28,7 @@ const Router = () => {
     <BrowserRouter>
       <Navbar />
       <CommandPalette />
+      <KeybindingCheatsheet />
 
       <Routes>
         <Route path="/" element={<Home />} />
@@ -38,6 +40,7 @@ const Router = () => {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/calendar"
           element={
