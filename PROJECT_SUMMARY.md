@@ -6,16 +6,20 @@
 
 **Repository Structure:** Monorepo with three workspace packages (`@todo/backend`, `@todo/web`, `@todo/shared`)
 
+**Recent Enhancements:** Keyboard‑centric workflows (command palette, global shortcuts and cheatsheet), undo/delete restoration, a full user profile/settings panel with animation control and reduce‑motion support, calendar navigation and improved accessibility across the UI.
+
 ---
 
 ## Tech Stack Overview
 
 ### Core Runtime & Languages
+
 - **Runtime:** Bun (TypeScript-first JavaScript runtime)
 - **Language:** TypeScript 5.9.3
 - **Package Manager:** Bun (workspace management)
 
 ### Backend
+
 - **Framework:** Express.js 5.2.1
 - **Database ORM:** Prisma 7.4.0
 - **Database Adapter:** PostgreSQL (via Neon), LibSQL, or SQLite
@@ -25,6 +29,7 @@
 - **Utilities:** cookie-parser, cors, dotenv
 
 ### Frontend
+
 - **UI Framework:** React 19.2.0
 - **Build Tool:** Vite 7.2.4
 - **Styling:** Tailwind CSS 4.1.18 (with Vite plugin)
@@ -39,6 +44,7 @@
 - **Utilities:** clsx, tailwind-merge
 
 ### Shared Package
+
 - **Validation Schemas:** Zod schemas for auth and todo inputs
 - **Type Definitions:** TypeScript interfaces for User, Todo, and API responses
 
@@ -49,6 +55,7 @@
 ### Color Palette
 
 **Light Mode:**
+
 ```
 Primary Color:        #f80429 (Vibrant Red)
 Secondary Color:      #ef233c (Deep Red)
@@ -57,6 +64,7 @@ Text Color:           #1a1a1a (Near black)
 ```
 
 **Dark Mode:**
+
 ```
 Primary Color:        #ef233c (Deep Red)
 Secondary Color:      #d90429 (Dark Red)
@@ -67,6 +75,7 @@ Text Color:           #edf2f4 (Off-white)
 ### Typography
 
 **Font Families:**
+
 - **Primary (Sans-serif):** Inter (weights 100-900) - used for UI and body text
 - **Secondary (Serif):** Unna (Regular, Italic, Bold, Bold Italic) - used for headings and decorative elements
 
@@ -80,6 +89,7 @@ Text Color:           #edf2f4 (Off-white)
 - **Rounded Elements:** Consistent use of rounded-full for badges and pill-shaped buttons
 - **Transparency:** Heavy use of backdrop-blur and rgba text colors for glass-morphism effects
 - **Border Style:** Minimal borders with text/5 opacity for subtle separation
+- **Keyboard Shortcuts:** Global and contextual keyboard commands accessible via `mod+k` command palette and `?` cheatsheet.
 
 ### Component Styling Patterns
 
@@ -126,12 +136,18 @@ packages/backend/
 ### Server Initialization (`server.ts`)
 
 **Middleware Stack:**
+
 ```typescript
 // CORS Configuration - allows frontend on localhost:5173 or FRONTEND_URL env var
-app.use(cors({
-  origin: env.NODE_ENV === "development" ? "http://localhost:5173" : env.FRONTEND_URL,
-  credentials: true  // Enable cookie-based authentication
-}));
+app.use(
+  cors({
+    origin:
+      env.NODE_ENV === "development"
+        ? "http://localhost:5173"
+        : env.FRONTEND_URL,
+    credentials: true, // Enable cookie-based authentication
+  }),
+);
 
 // Cookie Parser - parses Set-Cookie headers
 app.use(cookieParser());
@@ -142,6 +158,7 @@ app.use(express.urlencoded({ extended: true }));
 ```
 
 **Route Registration:**
+
 - `/api/auth` - Public authentication endpoints
 - `/api/todo` - Protected todo endpoints (requires authentication)
 - `/api/admin` - Admin-only endpoints (requires admin role)
@@ -165,6 +182,7 @@ EnvSchema: {
 ### Authentication System
 
 **JWT Token Generation & Verification:**
+
 - Tokens signed with `JWT_SECRET` from environment
 - Token expiration: 7 days
 - Tokens stored in HTTP-only cookies (httpOnly: true, secure in production, sameSite: strict)
@@ -172,6 +190,7 @@ EnvSchema: {
 **Auth Controller Logic:**
 
 **Register (`POST /api/auth/register`):**
+
 ```typescript
 Input Validation (Zod):
   - name: string (min 2 chars)
@@ -189,6 +208,7 @@ Process:
 ```
 
 **Login (`POST /api/auth/login`):**
+
 ```typescript
 Input Validation:
   - email: string (valid email)
@@ -204,13 +224,29 @@ Process:
 ```
 
 **Logout (`POST /api/auth/logout`):**
+
 ```typescript
 Process:
   1. Clear access_token cookie
   2. Return success message
 ```
 
+**Update Current User (`PUT /api/auth/me`):**
+
+```typescript
+Input Validation (basic):
+  - name: string (min 2 chars, optional)
+  - email: string (valid email, optional)
+
+Process:
+  1. Verify JWT and load current user via protection middleware
+  2. Validate incoming fields
+  3. Update user record in the database
+  4. Return updated user object
+```
+
 **Get Current User (`GET /api/auth/me`):**
+
 ```typescript
 Process:
   1. Extract token from cookies
@@ -223,6 +259,7 @@ Process:
 ### Middleware
 
 **Auth Protection Middleware (`protect`):**
+
 ```typescript
 Process:
   1. Extract access_token from request cookies
@@ -234,6 +271,7 @@ Process:
 ```
 
 **Admin Role Check (`requireAdmin`):**
+
 ```typescript
 Process:
   1. Check if req.user.role === "ADMIN"
@@ -244,6 +282,7 @@ Process:
 ### Todo Controller
 
 **GetAll (`GET /api/todo`):**
+
 ```typescript
 - Protected route
 - Retrieves all todos for authenticated user
@@ -252,6 +291,7 @@ Process:
 ```
 
 **Create (`POST /api/todo`):**
+
 ```typescript
 Input Validation:
   - text: string (required, min 1 char)
@@ -265,6 +305,7 @@ Process:
 ```
 
 **Update (`PUT /api/todo/:id`):**
+
 ```typescript
 Input Validation:
   - text: string (optional)
@@ -280,6 +321,7 @@ Process:
 ```
 
 **Delete (`DELETE /api/todo/:id`):**
+
 ```typescript
 Process:
   1. Validate todoId param
@@ -291,6 +333,7 @@ Process:
 ### Admin Controller
 
 **All Users (`GET /api/admin/users`):**
+
 ```typescript
 - Protected & admin-only
 - Returns list of all users with stats
@@ -302,6 +345,7 @@ Process:
 ```
 
 **User Todos (`GET /api/admin/users/:userId/todos`):**
+
 ```typescript
 - Protected & admin-only
 - Retrieves all todos for specific user
@@ -309,6 +353,7 @@ Process:
 ```
 
 **Delete User (`DELETE /api/admin/users/:userId`):**
+
 ```typescript
 - Protected & admin-only
 - Prevents admin from deleting their own account
@@ -316,12 +361,14 @@ Process:
 ```
 
 **Delete Todo (`DELETE /api/admin/todos/:todoId`):**
+
 ```typescript
 - Protected & admin-only
 - Allows admin to delete any todo
 ```
 
 **Update User Role (`PATCH /api/admin/users/:userId/role`):**
+
 ```typescript
 Input:
   - role: "USER" | "ADMIN"
@@ -334,6 +381,7 @@ Restrictions:
 ### Password Hashing
 
 Uses Bun's native bcrypt implementation:
+
 ```typescript
 // Hash password during registration
 const hashed = await Bun.password.hash(password, "bcrypt");
@@ -345,6 +393,7 @@ const verified = await Bun.password.verify(password, hash, "bcrypt");
 ### Cookie Management
 
 **Set Cookie:**
+
 ```typescript
 HTTP-only: true (not accessible to JavaScript)
 Secure: true (only sent over HTTPS in production)
@@ -353,8 +402,9 @@ MaxAge: 7 days (matches JWT expiration)
 ```
 
 **Clear Cookie:**
+
 ```typescript
-res.clearCookie(name, { httpOnly: true, secure, sameSite })
+res.clearCookie(name, { httpOnly: true, secure, sameSite });
 ```
 
 ---
@@ -368,6 +418,7 @@ res.clearCookie(name, { httpOnly: true, secure, sameSite })
 **Data Models:**
 
 #### User Model
+
 ```typescript
 model User {
   id        String   @id @default(uuid())    // Unique identifier
@@ -387,6 +438,7 @@ enum Role {
 ```
 
 #### Todo Model
+
 ```typescript
 model Todo {
   id        String    @id @default(uuid())   // Unique identifier
@@ -402,10 +454,12 @@ model Todo {
 ```
 
 **Indexes:**
+
 - User.email: UNIQUE (for email lookups during auth)
 - Todo.userId: Foreign key index (for user todo queries)
 
 **Migrations:**
+
 - `20260217111750_init` - Initial schema
 - `20260218180844_init` - Schema adjustments
 - `20260219185250_init` - Additional schema changes
@@ -426,6 +480,10 @@ packages/web/
 │   │   ├── Navbar.tsx           # Main navigation bar with auth state
 │   │   ├── Layout.tsx           # Responsive layout wrapper
 │   │   ├── CommandPalette.tsx   # Command palette for shortcuts
+│   │   ├── KeybindingCheatsheet.tsx # On‑demand shortcuts reference
+│   │   ├── InfoRow.tsx            # Label/value row used on profile page
+│   │   ├── SettingRow.tsx         # Toggle row with icon & description
+│   │   ├── UserAvatar.tsx         # Circular user initials/avatar component
 │   │   ├── auth/
 │   │   │   ├── AuthProvider.tsx    # Context for initial auth check
 │   │   │   ├── ProtectRoute.tsx    # Route guard for authenticated users
@@ -471,7 +529,7 @@ packages/web/
 │   │   ├── todoStore.ts          # Todo state (todos, CRUD operations)
 │   │   ├── themeStore.ts         # Theme state (light/dark/auto)
 │   │   ├── settingStore.ts       # Settings (reduce motion, animation speed)
-│   │   └── commandPaletteStore.ts # Command palette open/close state
+│   │   └── commandPaletteStore.ts # Command palette open/close state (triggered by mod+k; used by Navbar & Router)
 │   ├── lib/                      # Utility libraries
 │   │   ├── axios.ts              # Axios instance with default config
 │   │   ├── todos.ts              # Todo grouping & date utilities
@@ -496,6 +554,7 @@ packages/web/
 **Zustand Stores:**
 
 #### 1. **Auth Store (`authStore.ts`)**
+
 ```typescript
 State:
   - user: User | null           // Current user object
@@ -509,21 +568,22 @@ Actions:
     • Calls GET /api/auth/me
     • Sets user & authenticated state
     • Catches errors silently (logged out state)
-  
+
   - login(data: LoginInput): Promise<void>
     • POST /api/auth/login
     • Updates user state, sets isAdmin flag
-  
+
   - register(data: RegisterInput): Promise<void>
     • POST /api/auth/register
     • Updates user state, sets isAdmin flag
-  
+
   - logout(): Promise<void>
     • POST /api/auth/logout
     • Clears user state, resets to logged out
 ```
 
 #### 2. **Todo Store (`todoStore.ts`)**
+
 ```typescript
 State:
   - todos: Todo[]               // Array of all user todos
@@ -533,25 +593,26 @@ Actions:
   - fetchTodos(): Promise<void>
     • GET /api/todo
     • Populates todos array
-  
+
   - createTodo(data: CreateTodoInput): Promise<void>
     • POST /api/todo
     • Appends new todo to local state
-  
+
   - updateTodo(id: string, data: UpdateTodoInput): Promise<void>
     • PUT /api/todo/:id
     • Updates specific todo in array
-  
+
   - deleteTodo(id: string): Promise<void>
     • DELETE /api/todo/:id
     • Removes todo from array
-  
+
   - toggleTodo(id: string): Promise<void>
     • PUT /api/todo/:id with { done: !todo.done }
     • Toggles completion status
 ```
 
 #### 3. **Theme Store (`themeStore.ts`)**
+
 ```typescript
 State:
   - theme: "light" | "dark" | "auto"
@@ -563,7 +624,7 @@ Actions:
     • Saves to localStorage
     • Applies theme with CSS class manipulation
     • Updates resolved theme based on system preference
-  
+
   - initializeTheme(): void
     • Loads from localStorage on app start
     • Listens to media query changes for "auto" mode
@@ -571,7 +632,8 @@ Actions:
 ```
 
 #### 4. **Settings Store (`settingStore.ts`)**
-```typescript
+
+````typescript
 State:
   - reduceMotion: boolean              // Accessibility setting
   - animationSpeed: "slow" | "normal" | "fast"
@@ -585,28 +647,46 @@ Actions:
   - setReduceMotion(value: boolean): void
     • Applies .reduce-motion class to root element
     • Saves to localStorage
-  
+
   - setAnimationSpeed(speed: AnimationSpeed): void
     • Saves to localStorage
     • Used by Motion/GSAP animations
-  
+
   - initializeSettings(): void
     • Loads from localStorage on app start
+
+#### 5. **Command Palette Store (`commandPaletteStore.ts`)**
+```typescript
+State:
+  - isOpen: boolean              // whether the command palette modal is visible
+
+Actions:
+  - open(): void                 // sets isOpen true
+  - close(): void                // sets isOpen false
+  - toggle(): void               // toggles the palette
+
+Description:
+  • Used by the global `mod+k` shortcut and Navbar button
+  • Commands include navigation actions and a searchable list of shortcuts.
+````
+
 ```
 
 ### Authentication Flow
 
 **App Initialization:**
 ```
+
 1. AuthProvider mounts (in main.tsx)
    └─> Calls useAuthStore.checkAuth()
-       └─> GET /api/auth/me
-           • If success: user is logged in
-           • If fails: user is logged out
+   └─> GET /api/auth/me
+   • If success: user is logged in
+   • If fails: user is logged out
 
 2. App component renders
    └─> Checks isAuthenticated before showing protected routes
-```
+
+````
 
 **Protected Routes:**
 
@@ -616,9 +696,10 @@ Actions:
 - Checks useAuthStore.isAuthenticated
 - Redirects to /login if not authenticated
 - Shows children if authenticated
-```
+````
 
 **RequireAdmin Component:**
+
 ```typescript
 - Wraps routes that require admin role
 - Checks useAuthStore.isAdmin
@@ -627,6 +708,7 @@ Actions:
 ```
 
 **Login Flow:**
+
 ```
 1. User submits login form
 2. Calls authStore.login(email, password)
@@ -639,6 +721,7 @@ Actions:
 ```
 
 **Logout Flow:**
+
 ```
 1. User clicks logout
 2. Calls authStore.logout()
@@ -653,7 +736,7 @@ Actions:
 ```typescript
 const api = axios.create({
   baseURL: "http://localhost:5000/api",
-  withCredentials: true  // Automatically send cookies with requests
+  withCredentials: true, // Automatically send cookies with requests
 });
 
 // All requests use this instance, so cookies are sent to protected routes
@@ -662,6 +745,7 @@ const api = axios.create({
 ### Component Patterns
 
 **TodoItem Component:**
+
 ```typescript
 Props:
   - todo: Todo & { dueDate?: string | Date | null; note?: string | null }
@@ -692,6 +776,7 @@ Drag & Drop Integration:
 ```
 
 **Navbar Component:**
+
 ```typescript
 Features:
   - Logo & brand name
@@ -712,6 +797,7 @@ Mobile Menu:
 ```
 
 **AuthProvider Component:**
+
 ```typescript
 Function:
   - Wraps entire app in main.tsx
@@ -721,9 +807,53 @@ Function:
 - No UI rendering, just effect hook execution
 ```
 
+**Command Palette & Shortcuts:**
+
+```typescript
+Features:
+  - Global `mod+k` opens a searchable command palette overlay
+  - Commands (navigate to pages, toggle settings, etc) defined in `lib/keybindings.ts`
+  - Palette visibility controlled by `commandPaletteStore` (open/close/toggle)
+  - `KeybindingCheatsheet` component shows all shortcuts grouped by scope;
+    toggled with `?` and dismissable with escape
+  - Shortcuts include focus input (/), undo delete (mod+z), calendar nav, edit actions
+```
+
+**UserPage Component:**
+
+```typescript
+Features:
+  - Displays user profile info, avatar, membership details, and role badge
+  - Editable name/email modal with form validation and API call
+  - Preferences section with reduce-motion toggle and animation speed selector
+  - Admin users see banner linking to admin panel and extra stats
+  - Uses UI primitives `InfoRow`, `SettingRow`, and `UserAvatar` for layout
+```
+
+**UndoToast Component:**
+
+```typescript
+Features:
+  - Brief notification shown after deleting a todo
+  - Provides an undo callback that restores the todo via todo store
+  - Dismisses automatically after 5 seconds or when user toggles
+  - Can be triggered via `mod+z` global shortcut as well
+```
+
+**Calendar Page & Navigation Shortcuts:**
+
+```typescript
+Features:
+  - Monthly grid view of todos with due dates highlighted
+  - Arrow keys navigate previous/next month; `t` jumps to current month
+  - Keyboard shortcuts ignored when focus is in input/textarea
+  - Supports date picker for creating/editing todos from calendar
+```
+
 ### Validation Schemas
 
 **Auth Schemas (from shared):**
+
 ```typescript
 loginSchema:
   - email: valid email format
@@ -736,6 +866,7 @@ registerSchema:
 ```
 
 **Todo Schemas (from shared):**
+
 ```typescript
 createTodoSchema:
   - text: required string (min 1 char)
@@ -752,12 +883,16 @@ updateTodoSchema:
 ### Animations
 
 **Motion Library Usage:**
+
 ```typescript
 Variants defined in lib/animations.ts:
   - navVariants: Navbar entrance animation
   - todoItemVariants: Todo list item animations
   - buttonVariants: Button hover/tap effects
   - mobileMenuVariants: Mobile menu slide-in
+  - commandPaletteBackdropVariants: Fade/backdrop animation for command palette and cheatsheet
+  - commandPaletteVariants: Main palette/cheatsheet panel entrance
+  - commandPaletteGroupVariants, commandPaletteItemVariants: Staggered list animations for command groups and items
 
 GSAP Usage:
   - Scroll animations
@@ -766,6 +901,7 @@ GSAP Usage:
 ```
 
 **Animation Speed Control:**
+
 ```typescript
 Respects useSettingsStore.animationSpeed:
   - Duration multiplied by speed factor
@@ -794,6 +930,7 @@ packages/shared/
 ### Validation Schemas
 
 **Auth Schemas (`auth.schema.ts`):**
+
 ```typescript
 export const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -810,6 +947,7 @@ export type RegisterInput = z.infer<typeof registerSchema>;
 ```
 
 **Todo Schemas (`todo.schema.ts`):**
+
 ```typescript
 export const createTodoSchema = z.object({
   text: z.string().min(1, "Todo text is required"),
@@ -844,7 +982,7 @@ export interface Todo {
   text: string;
   note: string | null;
   done: boolean;
-  dueDate?: string;  // ISO date string
+  dueDate?: string; // ISO date string
   userId: string | null;
   createdAt?: string;
   updatedAt?: string;
@@ -877,6 +1015,7 @@ export type DateGroup = "Today" | "Yesterday" | "This Week" | "Older";
 ### Authentication Endpoints
 
 #### Register User
+
 ```
 POST /api/auth/register
 Content-Type: application/json
@@ -913,6 +1052,7 @@ Set-Cookie: access_token=<jwt>; Path=/; HttpOnly; Secure; SameSite=Strict; Max-A
 ```
 
 #### Login User
+
 ```
 POST /api/auth/login
 Content-Type: application/json
@@ -946,6 +1086,7 @@ Set-Cookie: access_token=<jwt>; Path=/; HttpOnly; Secure; SameSite=Strict; Max-A
 ```
 
 #### Logout User
+
 ```
 POST /api/auth/logout
 
@@ -959,6 +1100,7 @@ Set-Cookie: access_token=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0
 ```
 
 #### Get Current User
+
 ```
 GET /api/auth/me
 Cookie: access_token=<jwt>
@@ -978,11 +1120,39 @@ Error Response (401):
 {
   "message": "Not authenticated" | "Invalid token" | "Token expired"
 }
+
+#### Update Current User
+
+```
+
+PUT /api/auth/me
+Content-Type: application/json
+Cookie: access_token=<jwt>
+
+Request Body (any of):
+{
+"name": "New Name",
+"email": "new@example.com"
+}
+
+Success Response (200):
+{
+"user": { /_ updated user object _/ }
+}
+
+Error Response (400):
+{
+"message": "Validation failed" | { field: ["error"] }
+}
+
+```
+
 ```
 
 ### Todo Endpoints
 
 #### Get All Todos
+
 ```
 GET /api/todo
 Cookie: access_token=<jwt>
@@ -1010,6 +1180,7 @@ Error Response (500):
 ```
 
 #### Create Todo
+
 ```
 POST /api/todo
 Content-Type: application/json
@@ -1037,6 +1208,7 @@ Error Response (400):
 ```
 
 #### Update Todo
+
 ```
 PUT /api/todo/:id
 Content-Type: application/json
@@ -1058,6 +1230,7 @@ Success Response (200):
 ```
 
 #### Delete Todo
+
 ```
 DELETE /api/todo/:id
 Cookie: access_token=<jwt>
@@ -1071,6 +1244,7 @@ Success Response (200):
 ### Admin Endpoints
 
 #### Get All Users
+
 ```
 GET /api/admin/users
 Cookie: access_token=<jwt>  // Admin required
@@ -1100,6 +1274,7 @@ Error Response (403):
 ```
 
 #### Get User's Todos
+
 ```
 GET /api/admin/users/:userId/todos
 Cookie: access_token=<jwt>  // Admin required
@@ -1111,6 +1286,7 @@ Success Response (200):
 ```
 
 #### Delete User
+
 ```
 DELETE /api/admin/users/:userId
 Cookie: access_token=<jwt>  // Admin required
@@ -1124,6 +1300,7 @@ Note: Cascades delete to all user's todos
 ```
 
 #### Delete Todo (Admin)
+
 ```
 DELETE /api/admin/todos/:todoId
 Cookie: access_token=<jwt>  // Admin required
@@ -1135,6 +1312,7 @@ Success Response (200):
 ```
 
 #### Update User Role
+
 ```
 PATCH /api/admin/users/:userId/role
 Content-Type: application/json
@@ -1186,6 +1364,41 @@ Frontend (React) -> Backend (Express)
 12. Set authStore.user & isAuthenticated
    |
 13. Redirect to /todos
+```
+
+### Profile Update Flow
+
+```
+Frontend (React) -> Backend (Express)
+   |                    |
+1. User clicks edit profile      |
+   |                     |
+2. Modal form appears          |
+   |                     |
+3. onSubmit validate (non-empty) |
+   |                     |
+4. PUT /api/auth/me           |
+   |                  -> 5. receiveUpdateRequest
+   |                     |
+   |                     6. Verify JWT, lookup user
+   |                     7. Update name/email in DB
+   |                  <- 8. Return updated user object
+   |
+9. authStore.checkAuth() refreshes state
+  |
+10. Modal closes, UI reflects changes
+```
+
+### Undo Delete Flow
+
+```
+1. User deletes a todo (click or keyboard shortcut)
+2. TodoStore removes item optimistically
+3. UndoToast component appears with 5s timer
+4. If user clicks undo or presses mod+z:
+     - Cancel timer
+     - TodoStore re-inserts previous item or toggles done
+5. If timer expires, no action (delete persisted)
 ```
 
 ### Todo Creation & Display Flow
@@ -1283,14 +1496,8 @@ export const getDateGroup = (dateStr: string | Date): DateGroup => {
 ### Drag & Drop Integration
 
 ```typescript
-const {
-  attributes,
-  listeners,
-  setNodeRef,
-  transform,
-  transition,
-  isDragging,
-} = useSortable({ id: todo.id });
+const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+  useSortable({ id: todo.id });
 
 const style = {
   transform: CSS.Transform.toString(transform),
@@ -1318,6 +1525,7 @@ bun --cwd packages/web install
 ### Environment Variables
 
 **Backend (.env):**
+
 ```
 NODE_ENV=development
 PORT=5000
@@ -1328,6 +1536,7 @@ FRONTEND_URL=http://localhost:5173
 ```
 
 **Frontend (.env):**
+
 ```
 (Uses hardcoded localhost:5000 in axios config)
 ```
@@ -1430,4 +1639,3 @@ bun --cwd packages/web build
 8. **Offline Mode:** Service Workers for offline todos
 9. **Mobile App:** React Native version
 10. **Social Features:** Share todos with other users
-

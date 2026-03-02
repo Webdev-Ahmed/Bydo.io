@@ -32,7 +32,7 @@ export const register = async (req: Request, res: Response) => {
 
     return res
       .status(201)
-      .json({ user: newUser, message: "User created successfully" });
+      .json({ user: newUser, token, message: "User created successfully" });
   } catch (error) {
     if (error instanceof ZodError) {
       return res.status(400).json({ message: flattenError(error).fieldErrors });
@@ -62,7 +62,7 @@ export const login = async (req: Request, res: Response) => {
 
     setCookie(res, "access_token", token);
 
-    return res.status(200).json({ user, message: "Logged in successfully" });
+    return res.status(200).json({ user, token, message: "Logged in successfully" });
   } catch (error) {
     if (error instanceof ZodError) {
       return res.status(400).json({ message: flattenError(error).fieldErrors });
@@ -105,7 +105,7 @@ export const getMe = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    return res.status(200).json({ user });
+    return res.status(200).json({ user, token });
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
       return res.status(401).json({ message: "Invalid token" });
