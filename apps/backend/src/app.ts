@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import env from "@/libs/env";
+import env from "@/lib/env";
 
 import adminRoutes from "@/routes/admin.routes";
 import authRoutes from "@/routes/auth.routes";

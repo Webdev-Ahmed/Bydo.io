@@ -1,11 +1,11 @@
-import { prisma } from "@/libs/prisma";
+import { prisma } from "@/lib/prisma";
 import { loginSchema, registerSchema } from "@todo/shared";
 import type { Request, Response } from "express";
 import { ZodError, flattenError } from "zod";
-import { comparePassword, hashPassword } from "@/libs/utils";
+import { comparePassword, hashPassword } from "@/lib/utils";
 import jwt from "jsonwebtoken";
-import env from "@/libs/env";
-import { clearCookie, getCookie, setCookie } from "@/libs/cookies";
+import env from "@/lib/env";
+import { clearCookie, getCookie, setCookie } from "@/lib/cookies";
 
 export const register = async (req: Request, res: Response) => {
   try {

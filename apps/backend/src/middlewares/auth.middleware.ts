@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 import jwt, { type JwtPayload } from "jsonwebtoken";
-import { prisma } from "@/libs/prisma";
-import { getCookie } from "@/libs/cookies";
+import { prisma } from "@/lib/prisma";
+import { getCookie } from "@/lib/cookies";
 
 interface TokenPayload extends JwtPayload {
   userId: string;
