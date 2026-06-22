@@ -12,12 +12,5 @@
       "src": "/apps/web/dist/*",
       "use": "@now/static"
     }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dist": "/apps/backend/src/vercel.ts",
-      "methods": ["GET"]
-    }
   ]
 }
