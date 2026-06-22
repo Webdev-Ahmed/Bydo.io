@@ -3,7 +3,7 @@
   "rewrites": [{ "source": "/(.*)", "destination": "src/server.js" }],
   "functions": {
     "src/app.ts": {
-      "includeFiles": ["../../packages/shared/dist/**", "src/lib/**"]
+      "includeFiles": "src/lib/**"
     }
   }
 }
