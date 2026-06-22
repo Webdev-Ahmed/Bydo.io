@@ -1,5 +1,5 @@
-import app from "@/app";
-import env from "@/lib/env";
+import app from "#/app";
+import env from "#/lib/env";
 
 const PORT = env.PORT || 3000;
 

@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { prisma } from "#/lib/prisma";
 import { createTodoSchema, updateTodoSchema } from "@todo/shared";
 import type { Request, Response } from "express";
 import { flattenError, ZodError } from "zod";

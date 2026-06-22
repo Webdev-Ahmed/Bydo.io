@@ -20,7 +20,7 @@
     "noPropertyAccessFromIndexSignature": false,
     "types": ["bun-types"],
     "paths": {
-      "@/*": ["./src/*"]
+      "#/*": ["./src/*"]
     }
   },
   "include": ["src/**/*"]

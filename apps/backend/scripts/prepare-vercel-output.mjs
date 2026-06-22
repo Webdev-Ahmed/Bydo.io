@@ -1,7 +1,7 @@
 // Copies the compiled, alias-resolved Vercel handler into /api so Vercel's
 // zero-config Node.js Function detection can pick it up directly as plain JS.
 // This avoids Vercel's own TypeScript compiler, which does not resolve the
-// "@/*" path aliases used throughout src/.
+// "#/*" path aliases used throughout src/.
 import { mkdir, cp } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
