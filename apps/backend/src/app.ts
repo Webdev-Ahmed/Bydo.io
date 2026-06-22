@@ -1,11 +1,11 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import env from "#/lib/env.ts";
+import env from "@/lib/env.ts";
 
-import adminRoutes from "#/routes/admin.routes";
-import authRoutes from "#/routes/auth.routes";
-import todoRoutes from "#/routes/todo.routes";
+import adminRoutes from "@/routes/admin.routes";
+import authRoutes from "@/routes/auth.routes";
+import todoRoutes from "@/routes/todo.routes";
 
 const app = express();
 
