@@ -1,7 +1,6 @@
 import app from "@/app";
-import env from "@/lib/env";
 
-const PORT = env.PORT || 3000;
+const PORT = process.env.PORT || 3000;
 
 if (process.env.NODE_ENV !== "production") {
   app.listen(PORT, () => {
