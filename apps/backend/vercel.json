@@ -1,9 +1,7 @@
 {
   "version": 2,
-  "rewrites": [{ "source": "/(.*)", "destination": "src/vercel.ts" }],
+  "rewrites": [{ "source": "/(.*)", "destination": "dist/server.js" }],
   "functions": {
-    "src/vercel.ts": {
-      "includeFiles": "src/**"
-    }
+    "dist/server.js": {}
   }
 }
