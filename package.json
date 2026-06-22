@@ -2,7 +2,8 @@
   "name": "bydo-io-monorepo",
   "private": true,
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "apps/*"
   ],
   "type": "module",
   "packageManager": "bun@1.3.14",
