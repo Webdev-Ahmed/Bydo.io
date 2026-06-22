@@ -1,4 +1,4 @@
-import { loginSchema } from "@todo/shared";
+import { loginSchema } from "@bydo-io/shared";
 import { useState, type SubmitEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { flattenError, ZodError } from "zod";

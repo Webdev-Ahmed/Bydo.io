@@ -5,7 +5,7 @@ import {
 } from "@dnd-kit/sortable";
 import { TodoItem, SectionHeader } from "@/components";
 import { slideLeftVariants } from "@/lib/animations";
-import type { Todo } from "@todo/shared";
+import type { Todo } from "@bydo-io/shared";
 
 interface TodoGroupProps {
   label: string;

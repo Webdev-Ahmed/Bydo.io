@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import api from "@/lib/axios";
-import type { Todo } from "@todo/shared";
-import type { CreateTodoInput, UpdateTodoInput } from "@todo/shared";
+import type { Todo } from "@bydo-io/shared";
+import type { CreateTodoInput, UpdateTodoInput } from "@bydo-io/shared";
 
 interface TodoState {
   todos: Todo[];

@@ -1,4 +1,4 @@
-import type { Todo, UpdateTodoInput } from "@todo/shared";
+import type { Todo, UpdateTodoInput } from "@bydo-io/shared";
 import { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { formatDate } from "date-fns";

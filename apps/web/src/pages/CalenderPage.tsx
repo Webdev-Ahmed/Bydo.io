@@ -1,4 +1,4 @@
-import type { Todo } from "@todo/shared";
+import type { Todo } from "@bydo-io/shared";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {

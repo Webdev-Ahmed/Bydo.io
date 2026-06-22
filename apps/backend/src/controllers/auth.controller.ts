@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { loginSchema, registerSchema } from "@todo/shared";
+import { loginSchema, registerSchema } from "@bydo-io/shared";
 import type { Request, Response } from "express";
 import { ZodError, flattenError } from "zod";
 import { comparePassword, hashPassword } from "@/lib/utils";

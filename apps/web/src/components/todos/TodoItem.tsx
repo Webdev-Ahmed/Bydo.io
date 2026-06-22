@@ -19,7 +19,7 @@ import {
   ease,
 } from "@/lib/animations";
 import { toDateStr } from "@/lib/todos";
-import type { Todo } from "@todo/shared";
+import type { Todo } from "@bydo-io/shared";
 
 const TEMP_PREFIX = "__temp__";
 

@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import api from "@/lib/axios";
-import type { User } from "@todo/shared";
-import type { LoginInput, RegisterInput } from "@todo/shared";
+import type { User } from "@bydo-io/shared";
+import type { LoginInput, RegisterInput } from "@bydo-io/shared";
 
 interface AuthState {
   user: User | null;
