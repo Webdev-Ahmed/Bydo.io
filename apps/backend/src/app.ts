@@ -1,7 +1,6 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import env from "@/lib/env";
 
 import adminRoutes from "@/routes/admin.routes";
 import authRoutes from "@/routes/auth.routes";
@@ -12,9 +11,9 @@ const app = express();
 app.use(
   cors({
     origin:
-      env.NODE_ENV === "development"
+      process.env.NODE_ENV === "development"
         ? "http://localhost:5173"
-        : env.FRONTEND_URL,
+        : process.env.FRONTEND_URL,
     credentials: true,
   }),
 );
