@@ -2,9 +2,9 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 
-import adminRoutes from "@/routes/admin.routes";
-import authRoutes from "@/routes/auth.routes";
-import todoRoutes from "@/routes/todo.routes";
+import adminRoutes from "@/routes/admin.routes.ts";
+import authRoutes from "@/routes/auth.routes.ts";
+import todoRoutes from "@/routes/todo.routes.ts";
 
 const app = express();
 
