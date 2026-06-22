@@ -30,9 +30,11 @@ export const register = async (req: Request, res: Response) => {
 
     setCookie(res, "access_token", token);
 
+    const { password: _password, ...safeUser } = newUser;
+
     return res
       .status(201)
-      .json({ user: newUser, token, message: "User created successfully" });
+      .json({ user: safeUser, token, message: "User created successfully" });
   } catch (error) {
     if (error instanceof ZodError) {
       return res.status(400).json({ message: flattenError(error).fieldErrors });
@@ -62,7 +64,11 @@ export const login = async (req: Request, res: Response) => {
 
     setCookie(res, "access_token", token);
 
-    return res.status(200).json({ user, token, message: "Logged in successfully" });
+    const { password: _password, ...safeUser } = user;
+
+    return res
+      .status(200)
+      .json({ user: safeUser, token, message: "Logged in successfully" });
   } catch (error) {
     if (error instanceof ZodError) {
       return res.status(400).json({ message: flattenError(error).fieldErrors });

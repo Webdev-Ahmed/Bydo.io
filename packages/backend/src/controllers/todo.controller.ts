@@ -95,7 +95,7 @@ export const deleteTodo = async (req: Request, res: Response) => {
 
     return res
       .status(200)
-      .json({ todo: deleteTodo, message: "Todo deleted successfully" });
+      .json({ todo: deletedTodo, message: "Todo deleted successfully" });
   } catch (error) {
     return res.status(500).json({ message: "Internal Server Error" });
   }

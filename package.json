@@ -1,12 +1,18 @@
 {
-  "name": "todo-monorepo",
+  "name": "bydo-io-monorepo",
   "private": true,
-  "scripts": {
-    "dev:backend": "bun --cwd packages/backend dev",
-    "dev:web": "bun --cwd packages/web dev",
-    "dev": "bun --cwd packages/backend dev; bun --cwd packages/web dev"
-  },
   "workspaces": [
     "packages/*"
-  ]
+  ],
+  "type": "module",
+  "packageManager": "bun@1.3.14",
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck"
+  },
+  "devDependencies": {
+    "turbo": "^2.9.18"
+  }
 }

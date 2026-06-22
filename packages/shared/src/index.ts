@@ -1,4 +1,4 @@
-export * from "./schemas/auth.schema";
-export * from "./schemas/todo.schema";
+export * from "./schemas/auth.schema.js";
+export * from "./schemas/todo.schema.js";
 
-export * from "./types";
+export * from "./types/index.js";

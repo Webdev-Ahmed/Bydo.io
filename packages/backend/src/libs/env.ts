@@ -5,9 +5,9 @@ config();
 
 const EnvSchema = z.object({
   NODE_ENV: z.string().default("development"),
-  PORT: z.coerce.number().default(5000),
-  DATABASE_URL: z.string().default("file:./dev.db"),
-  DIRECT_URL: z.string().default("file:./dev.db"),
+  PORT: z.coerce.number().default(4008),
+  DATABASE_URL: z.string(),
+  DIRECT_URL: z.string(),
   JWT_SECRET: z.string(),
   FRONTEND_URL: z.string().optional(),
 });
@@ -22,7 +22,10 @@ try {
   const error = e as ZodError;
   console.error("❌ Invalid env:");
   console.error(z.flattenError(error).fieldErrors);
-  process.exit(1);
+  // Throwing (rather than process.exit) lets this surface as a clean
+  // request-time error on serverless platforms like Vercel, instead of
+  // killing the function process during a cold start.
+  throw new Error("Invalid environment configuration. See logs above.");
 }
 
 export default env;

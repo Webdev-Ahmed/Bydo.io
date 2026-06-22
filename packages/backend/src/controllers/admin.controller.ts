@@ -64,7 +64,7 @@ export const getUserTodos = async (req: Request, res: Response) => {
 
 export const deleteUser = async (req: Request, res: Response) => {
   const userId = req.params.userId as string;
-  const requestingUser = (req as any).user;
+  const requestingUser = req.user;
 
   if (requestingUser?.id === userId) {
     return res
@@ -111,7 +111,7 @@ export const deleteTodo = async (req: Request, res: Response) => {
 export const updateUserRole = async (req: Request, res: Response) => {
   const userId = req.params.userId as string;
   const { role } = req.body as { role: "USER" | "ADMIN" };
-  const requestingUser = (req as any).user;
+  const requestingUser = req.user;
 
   if (!["USER", "ADMIN"].includes(role)) {
     return res
