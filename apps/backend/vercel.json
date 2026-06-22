@@ -2,6 +2,8 @@
   "version": 2,
   "rewrites": [{ "source": "/(.*)", "destination": "dist/server.js" }],
   "functions": {
-    "dist/server.js": {}
+    "dist/server.js": {
+      "maxDuration": 10
+    }
   }
 }
