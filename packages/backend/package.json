@@ -6,7 +6,6 @@
   "scripts": {
     "dev": "bun --watch src/server.ts",
     "start": "bun src/server.ts",
-    "postinstall": "prisma generate",
     "build": "prisma generate && tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json -f && node scripts/prepare-vercel-output.mjs",
     "lint": "tsc -p tsconfig.build.json --noEmit",
     "typecheck": "tsc -p tsconfig.build.json --noEmit",
