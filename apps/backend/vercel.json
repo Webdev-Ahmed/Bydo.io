@@ -2,8 +2,8 @@
   "version": 2,
   "rewrites": [{ "source": "/(.*)", "destination": "src/server.js" }],
   "functions": {
-    "src/app.js": {
-      "includeFiles": "../../packages/shared/**"
+    "src/app.ts": {
+      "includeFiles": "../../packages/shared/dist/**"
     }
   }
 }
